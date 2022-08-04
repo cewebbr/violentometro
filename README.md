@@ -39,7 +39,7 @@ contém discurso de ódio a partir das bases disponibilizadas por
 Ambos os trabalhos acima, que fornecem exemplos para treinamento de detecção de discurso de ódio,
 utilizam três anotadores para classificar cada exemplo.
 Para os exemplos originados de [Pelle & Moreira (2017)](https://github.com/rogersdepelle/OffComBR),
-que possui uma concordância entre os anotadores de 0.71 ([Fleiss' Kappa](https://en.wikipedia.org/wiki/Fleiss'_kappa))
+que possuem uma concordância entre os anotadores de 0.71 ([Fleiss' Kappa](https://en.wikipedia.org/wiki/Fleiss'_kappa)),
 escolhemos como discurso de ódio os exemplos com duas ou mais classificações nesse sentido, sendo que os
 demais foram definidos como sem discurso de ódio.
 
@@ -80,9 +80,11 @@ máquina.
 O objeto `model` possui os métodos `.predit_proba()` e `.predict_class()`, que recebem de input uma string
 com o texto ou uma lista de textos (strings) a serem avaliados. O primeiro retorna a probabilidade de cada
 texto ser discurso de ódio, e o segundo retorna, para cada texto e de acordo com o limiar (_threshold_)
-estabelecido: 1, se o modelo considerá-lo discurso de ódio; e 0 caso contrário.
+estabelecido: 1, se o modelo considerá-lo discurso de ódio; e 0, caso contrário.
 
-    exemplos = ['To te esperando com um cafezinho, pode chegar', 'Não gostei nada da sua última proposta, com exceção, talvez, da parte 2.']
+    exemplos = ['To te esperando com um cafezinho, pode chegar',
+                'Não gostei nada da sua última proposta, com exceção, talvez, da parte 2.']
+
     model.predict_proba(exemplos)
     # Output: array([0.09299637, 0.00845698], dtype=float32) 
 
