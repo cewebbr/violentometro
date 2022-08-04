@@ -1,4 +1,4 @@
-# Violentômetro - Violência eleitoral nas redes
+# Violentômetro - Violência política nas redes
 
 Módulo em Python que calcula a probabilidade de textos conterem
 discurso de ódio.
