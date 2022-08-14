@@ -5,3 +5,6 @@ env
 app
 registros
 modelos/bertimbau-hatespeech-v02
+tweets/data
+tweets/logs
+

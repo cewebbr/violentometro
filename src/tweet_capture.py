@@ -767,7 +767,7 @@ def load_saved_mentions(data_dir):
 
 
 def log_print(string, start=False):
-    print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string))
+    print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string), flush=True)
 
 
 def update_current_level(new_tweets, config):
@@ -832,5 +832,5 @@ def driver():
 
 # If running this code as a script:
 if __name__ == '__main__':
-    
+
     driver()
