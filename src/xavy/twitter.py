@@ -25,6 +25,7 @@ import requests
 import datetime as dt
 import time
 import subprocess
+import sys
 from collections import defaultdict
 
 from . import oauth
@@ -861,12 +862,14 @@ def auth_in_header(header, credentials):
     return header
 
 
-def exceeded_request_limit(response):
+def exceeded_request_limit(response, abort=True):
     """
     Check if the `response` from a twitter 
     API request informs that the request 
     limit has been exceeded. In this case,
     return True. Otherwise, return False.
+    If `abort` is True, run `sys.exit()` on 
+    exceeding limit.
     """
     
     # Look for rate limit error in the response body:
@@ -884,6 +887,8 @@ def exceeded_request_limit(response):
     # Check for status code or error message:
     if response.status_code == 429 or rate_limit:
         print('!! Request limit exceeded. Request header: {}'.format(response.headers))
+        if abort is True:
+            sys.exit()
         return True
     
     return False
