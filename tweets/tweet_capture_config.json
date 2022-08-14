@@ -1,13 +1,13 @@
 {
  "curr_level": 8965,
  "cap_renew_date": "2022-08-23",
- "avg_tweets_per_cand": 12,
+ "avg_tweets_per_cand": 120,
  "tweets_buffer": 100,
  "capture_period": 6,
  "tweet_cap": 2000000,
  "log_dir": "../tweets/logs/capture/",
  "error_dir": "../tweets/logs/capture_errors/",
  "data_dir": "../tweets/data/",
- "batch_ref_time": "2022-08-14T12:00:00",
+ "batch_ref_time": "2022-08-14T21:00:00",
  "twitter_ids_file": "../dados/processados/twitter_ids_deputados_2022.csv"
 }
