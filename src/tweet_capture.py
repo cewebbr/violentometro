@@ -694,6 +694,9 @@ def run_batch_capture(batch_time, twitter_df, config, previous_batch=None, verbo
                 batch_df.loc[i, name] = stat
             # Save captured mentions:
             if mentions_df is not None:
+                # Add column identifying the batch:
+                mentions_df['batch_time'] = batch_time
+                # Save:
                 filename = gen_mentions_path(config['data_dir'], batch_time, batch_df.loc[i, 'id'])
                 make_necessary_dirs(filename)
                 mentions_df.to_csv(filename, index=False)      
