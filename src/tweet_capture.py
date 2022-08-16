@@ -570,7 +570,7 @@ def program_batch_capture(twitter_df, n_cands, previous_df=None, start_time=None
         no_repeat = twitter_df.loc[~twitter_df['id'].isin(previous_df['id'])]
     
     # Randomly select candidates:
-    daily_capture_df = no_repeat['id'].sample(n_cands, random_state=random_state).reset_index()
+    daily_capture_df = no_repeat['id'].sample(n_cands, weights=no_repeat['sample_weight'], random_state=random_state).reset_index()
     daily_capture_df.rename({'index':'cand_id_pos'}, axis=1, inplace=True)
     
     # Prepare batch information:
