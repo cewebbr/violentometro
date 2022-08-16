@@ -92,7 +92,8 @@ class HateSpeechModel:
             return tokenizer(examples[text_col], padding=True, max_length=max_length, truncation=True)
         
         return tokenize_function
-        
+
+    
     def process_pandas_to_tfdataset(self, df, max_length=80, shuffle=False, text_col='text', target_col='label', batch_size=8):
         """
         Prepare NLP data in a Pandas DataFrame to be used 
@@ -150,7 +151,7 @@ class HateSpeechModel:
         return tf_dataset
 
 
-    def predict_proba_from_tfd(self, tf_dataset):
+    def predict_proba_from_tfd(self, tf_dataset, verbose='auto'):
         """
         Compute the probability that each instance 
         is hate speech.
@@ -160,6 +161,13 @@ class HateSpeechModel:
         tf_dataset : Tensorflow Dataset
             The data for which to make predictions
             (already tokenized).
+        verbose : 'auto', 0, 1 or 2
+            Verbosity mode. 0 = silent, 1 = progress bar, 2 = single 
+            line. "auto" defaults to 1 for most cases, and to 2 when 
+            used with ParameterServerStrategy. Note that the progress 
+            bar is not particularly useful when logged to a file, so 
+            verbose=2 is recommended when not running interactively 
+            (e.g. in a production environment). 
         
         Returns
         -------
@@ -169,13 +177,13 @@ class HateSpeechModel:
             binary class.
         """
     
-        tf_predict = self.model.predict(tf_dataset).logits
+        tf_predict = self.model.predict(tf_dataset, verbose=verbose).logits
         probs = tf.sigmoid(tf_predict)[:,0].numpy()
         
         return probs
 
 
-    def predict_class_from_tfd(self, tf_dataset, threshold=0.5):
+    def predict_class_from_tfd(self, tf_dataset, threshold=0.5, verbose='auto'):
         """
         Predict if the input instances are 
         considered hate speech or not.
@@ -189,6 +197,13 @@ class HateSpeechModel:
             Probability value from 0 to 1 above 
             which the instance is considered hate
             speech.
+        verbose : 'auto', 0, 1 or 2
+            Verbosity mode. 0 = silent, 1 = progress bar, 2 = single 
+            line. "auto" defaults to 1 for most cases, and to 2 when 
+            used with ParameterServerStrategy. Note that the progress 
+            bar is not particularly useful when logged to a file, so 
+            verbose=2 is recommended when not running interactively 
+            (e.g. in a production environment). 
         
         Returns
         -------
@@ -197,13 +212,13 @@ class HateSpeechModel:
             instances.
         """
     
-        probs = self.predict_proba_from_tfd(tf_dataset)
+        probs = self.predict_proba_from_tfd(tf_dataset, verbose=verbose)
         preds = (probs > threshold).astype(int)
     
         return preds
 
 
-    def predict_proba(self, texts):
+    def predict_proba(self, texts, verbose='auto'):
         """
         Return the probability that the provided 
         sentences are considered hate speech.
@@ -212,6 +227,13 @@ class HateSpeechModel:
         ----------
         texts : str or list of str
             Sentences to classify.
+        verbose : 'auto', 0, 1 or 2
+            Verbosity mode. 0 = silent, 1 = progress bar, 2 = single 
+            line. "auto" defaults to 1 for most cases, and to 2 when 
+            used with ParameterServerStrategy. Note that the progress 
+            bar is not particularly useful when logged to a file, so 
+            verbose=2 is recommended when not running interactively 
+            (e.g. in a production environment). 
             
         Returns
         -------
@@ -229,12 +251,12 @@ class HateSpeechModel:
         input_df  = pd.DataFrame({'text': texts, 'label': [1] * len(texts)})
         input_tfd = self.process_pandas_to_tfdataset(input_df)
         # Predict with model:
-        probs = self.predict_proba_from_tfd(input_tfd)
+        probs = self.predict_proba_from_tfd(input_tfd, verbose=verbose)
         
         return probs
     
 
-    def predict_class(self, texts, threshold=0.5):
+    def predict_class(self, texts, threshold=0.5, verbose='auto'):
         """
         Predict if the input instances are 
         considered hate speech or not.
@@ -253,9 +275,16 @@ class HateSpeechModel:
         preds : array
             Predicted class for the corresponding
             instances.
+        verbose : 'auto', 0, 1 or 2
+            Verbosity mode. 0 = silent, 1 = progress bar, 2 = single 
+            line. "auto" defaults to 1 for most cases, and to 2 when 
+            used with ParameterServerStrategy. Note that the progress 
+            bar is not particularly useful when logged to a file, so 
+            verbose=2 is recommended when not running interactively 
+            (e.g. in a production environment). 
         """
     
-        probs = self.predict_proba(texts)
+        probs = self.predict_proba(texts, verbose=verbose)
         preds = (probs > threshold).astype(int)
     
         return preds
