@@ -573,7 +573,7 @@ def program_batch_capture(twitter_df, n_cands, previous_df=None, start_time=None
         no_repeat = twitter_df.loc[~twitter_df['id'].isin(previous_df['id'])]
     
     # Randomly select candidates:
-    daily_capture_df = no_repeat['id'].sample(n_cands, random_state=random_state).reset_index()
+    daily_capture_df = no_repeat['id'].sample(n_cands, weights=no_repeat['sample_weight'], random_state=random_state).reset_index()
     daily_capture_df.rename({'index':'cand_id_pos'}, axis=1, inplace=True)
     
     # Prepare batch information:
@@ -820,7 +820,7 @@ def driver():
         log_print('Reload config and ID pool!', True)
         config = read_config()
         twitter_df = pd.read_csv(config['twitter_ids_file'])
-        tot_cands = len(twitter_df) 
+        tot_cands = len(twitter_df)
         n_cands = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], config['capture_period'], tot_cands, config['tweet_cap'], config['tweets_buffer'])
         config_message = 'Batch config! # cands: {:d}, current level: {:d}, cap renew date: {}, avg. tweets p. cand: {:.3f}, capture period: {:.3f}'
         log_print(config_message.format(n_cands, config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], config['capture_period']))
