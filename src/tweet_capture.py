@@ -467,10 +467,12 @@ def todays_n_cands(curr_level, cap_renew_date, avg_tweets, tweet_cap=2000000, tw
         Number of candidates that can have their mentions captured.
     """
     
-    return int(todays_tweet_limit(curr_level, cap_renew_date, tweet_cap, tweets_buffer) / avg_tweets)
+    n_cands = int(todays_tweet_limit(curr_level, cap_renew_date, tweet_cap, tweets_buffer) / avg_tweets)
+    
+    return n_cands
 
 
-def batch_n_cands(curr_level, cap_renew_date, avg_tweets, capture_period, tweet_cap=2000000, tweets_buffer=100):
+def batch_n_cands(curr_level, cap_renew_date, avg_tweets, capture_period, max_cands, tweet_cap=2000000, tweets_buffer=100):
     """
     Compute the number of candidates to look mentions for in 
     a capture batch.
@@ -487,6 +489,8 @@ def batch_n_cands(curr_level, cap_renew_date, avg_tweets, capture_period, tweet_
         capture period.
     capture_period : int
         Capture window size for each user, in hours. 
+    max_cands : float
+        Maximum number of candidates in one capture batch.
     tweet_cap : int
         Monthly tweet cap.
         Check https://developer.twitter.com/en/portal/dashboard.
@@ -500,8 +504,9 @@ def batch_n_cands(curr_level, cap_renew_date, avg_tweets, capture_period, tweet_
         Number of candidates that can have their mentions captured.
     """
     
-    day_n_cands   = todays_n_cands(curr_level, cap_renew_date, avg_tweets, tweet_cap, tweets_buffer)
+    day_n_cands = todays_n_cands(curr_level, cap_renew_date, avg_tweets, tweet_cap, tweets_buffer)
     n_cands = int(day_n_cands / (24 / capture_period))
+    n_cands = int(min(n_cands, max_cands))
     
     return n_cands
 
@@ -674,7 +679,9 @@ def run_batch_capture(batch_time, twitter_df, config, previous_batch=None, verbo
         ids_df = twitter_df
         
     # Create batch of IDs to capture:
-    n_cands  = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], config['capture_period'])
+    n_cands  = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], 
+                             config['capture_period'], config['max_batch_cands'], config['tweet_cap'],
+                             config['tweets_buffer'])
     batch_df = program_batch_capture(ids_df, n_cands, previous_batch, start_time=batch_time)
 
     # Log batch data:
@@ -816,7 +823,8 @@ def driver():
         log_print('Reload config and ID pool!', True)
         config = read_config()
         twitter_df = pd.read_csv(config['twitter_ids_file'])
-        n_cands = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], config['capture_period'], config['tweet_cap'], config['tweets_buffer'])
+        n_cands = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], 
+                                config['capture_period'], config['max_batch_cands'], config['tweet_cap'], config['tweets_buffer'])
         config_message = 'Batch config! # cands: {:d}, current level: {:d}, cap renew date: {}, avg. tweets p. cand: {:.3f}, capture period: {:.3f}'
         log_print(config_message.format(n_cands, config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], config['capture_period']))
         
