@@ -1,2 +1,6 @@
 *.h5 filter=lfs diff=lfs merge=lfs -text
 dados/processados/twitter_ids_deputados_2022.csv filter=lfs diff=lfs merge=lfs -text
+prev_twitter_ids_deputados_2022.csv filter=lfs diff=lfs merge=lfs -text
+twitter+insta_ids_deputados_2022.csv filter=lfs diff=lfs merge=lfs -text
+twitter_ids_deputados_2022_v04.csv filter=lfs diff=lfs merge=lfs -text
+twitter+insta+lagom_ids_deputados_2022.csv filter=lfs diff=lfs merge=lfs -text
