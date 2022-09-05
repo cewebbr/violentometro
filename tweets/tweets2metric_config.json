@@ -1,0 +1,16 @@
+{
+    "analyse_ref_time": "2022-09-05T04:00:00",
+    "analyse_period": 24,
+    "id_pool_sources": "../tweets/logs/twitter_id_pool_sources.log",
+    "id_pool_dir": "../dados/processados/",
+    "batch_logs_dir": "../tweets/logs/capture/",
+    "scored_tweets_dir": "../tweets/scored/",
+    "target_model": "../modelos/nb_wrong_target_classifier_v01/production_model.joblib",
+    "bad_users": [1559574001927733253, 31695301, 6072312, 2817995382],
+    "pool_factor_file": "../dados/processados/pesos_diferentes_ID_pools_v01.csv",
+    "cand_sel_query": "DS_GENERO == 'FEMININO'",
+    "capture_period": 3,
+    "official_start": "2022-08-16 03:30:00",
+    "time_series_plot": "../webpage/data/tweets_agressivos_por_dia_feminino_{}.png",
+    "webpage_json_file": "../webpage/data/webpage_data.json"
+}

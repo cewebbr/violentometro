@@ -12,3 +12,7 @@ src/xavy/__pycache__
 src/__pycache__
 src/last_capture_pid
 src/last_rating_pid
+trash/
+dados/processados/bkp/
+modelos/rf_instagram2twitter_validator_v01/
+pretest_tweets/
