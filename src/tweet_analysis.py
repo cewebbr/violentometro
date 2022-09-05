@@ -882,21 +882,22 @@ def analyse_tweets(config):
 
 def driver():
     
-    if False:
-        # Read config:
-        config = read_config('../tweets/tweets2metric_config.json')
-        batch_time = config['analyse_ref_time']
-    
+   
+    # Read config:
+    config = read_config('../tweets/tweets2metric_config.json')
+    batch_time = config['analyse_ref_time']
+
+    while True:
         # Wait for next batch:
         batch_time = next_batch_time(config['analyse_period'], ini_date=batch_time)
         log_print('Next analysis at [{}]. Sleeping...'.format(batch_time))
         sleep_time = (batch_time - dt.datetime.now()).total_seconds()
         time.sleep(sleep_time)
 
-    # Read config:
-    config = read_config('../tweets/tweets2metric_config.json')
-    # Process data to produce summary stats and plots:
-    analyse_tweets(config)
+        # Read config:
+        config = read_config('../tweets/tweets2metric_config.json')
+        # Process data to produce summary stats and plots:
+        analyse_tweets(config)
     
 
 # If running this code as a script:
