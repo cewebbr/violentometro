@@ -6,7 +6,8 @@ app
 registros
 modelos/bertimbau-hatespeech-v02
 tweets/data
-tweets/logs
+tweets/logs/*
+!tweets/logs/twitter_id_pool_sources.log
 tweets/scored
 src/xavy/__pycache__
 src/__pycache__
