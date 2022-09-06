@@ -1,0 +1,5 @@
+pool_filename,n_tweets_list_factor,n_hate_list_factor
+twitter_ids_deputados_2022.csv,1.2161569160687113,1.073256708594442
+twitter+insta_ids_deputados_2022.csv,0.998440974414946,0.9909675410126545
+twitter+insta+lagom_ids_deputados_2022.csv,1.0,1.0
+twitter_ids_deputados_2022_v04.csv,1.0,1.0
