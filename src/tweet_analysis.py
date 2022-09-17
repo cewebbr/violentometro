@@ -75,6 +75,41 @@ def cross_join_dfs(df1, df2):
     return dfx
 
 
+def robust_load_csv(filename, low_memory=False, verbose=True, **kwargs):
+    """
+    Load a CSV file into a DataFrame using multiple strategies to 
+    ensure the loading.
+    
+    Parameters
+    ----------
+    filename : str of Path
+        Path to the CSV file.
+    low_memory : bool
+        Whether to guess column data types in order to use less memory
+        when loading.
+    verbose : bool
+        Whether to print warning with the filename that failed the 
+        basic loading strategy.
+    
+    Returns
+    -------
+    df : DataFrame
+        Data from the CSV file.
+    """
+    
+    try:
+        # Leitura básica:
+        df = pd.read_csv(filename, low_memory=low_memory, **kwargs)
+
+    except pd.errors.ParserError:
+        # Erro pode ser causado por carriage return. Nesse caso, tenta:
+        if verbose is True:
+            print('  !! Arquivo {} não foi aberto. Tentando evitar carriage return...'.format(filename))
+        df = pd.read_csv(filename, low_memory=low_memory, lineterminator='\n', **kwargs) 
+
+    return df
+
+
 def load_concat_csv(data_path, file_pattern='*.csv', **kwargs):
     """
     Load all selected files into a single DataFrame.
@@ -96,7 +131,7 @@ def load_concat_csv(data_path, file_pattern='*.csv', **kwargs):
     data_files = sorted(Path(data_path).rglob(file_pattern))
 
     # Load files:
-    df = pd.concat([pd.read_csv(f, low_memory=False, **kwargs) for f in data_files], ignore_index=True)
+    df = pd.concat([robust_load_csv(f, **kwargs) for f in data_files], ignore_index=True)
     
     return df
 
