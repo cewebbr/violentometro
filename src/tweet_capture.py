@@ -143,24 +143,25 @@ def append_mentions_page(mentions, url, parameters):
     return mentions, False
 
 
-def mentions_to_df(mentions, user_id):
+def mentions_to_df(mentions, user_id, carriage_replace=' '):
     """
-    Parse JSON structure containing twitter 
-    mentions to a user into a DataFrame.
+    Parse JSON structure containing twitter mentions to a user 
+    into a DataFrame.
 
     Parameters
     ----------
     mentions : dict
-        Twitter API response to 
-        /2/users/:id/mentions endpoint.
+        Twitter API response to /2/users/:id/mentions endpoint.
     user_id : str ir int
         Twitter ID of the mentioned user.
+    carriage_replace : str or None
+        A string to replace carriage returns '\r' in the 'text' tweet
+        field. If None, do not replace.
     
     Returns
     -------
     mentions_df : DataFrame
-        Data from the API parsed into a 
-        DataFrame, with some extra columns.
+        Data from the API parsed into a DataFrame, with some extra columns.
     """
     
     # Cria DataFrame de tweets mencionando usuário:
@@ -191,7 +192,9 @@ def mentions_to_df(mentions, user_id):
     # Identifica reply direto:
     mentions_df['direct_reply'] = (mentions_df['in_reply_to_user_id'] == str(user_id)).astype(int)
     
-    # Info da captura:
+    # Remove carriage return do texto do tweet:
+    if carriage_replace is not None:
+        mentions_df['text'] = mentions_df['text'].str.replace(r'\r', carriage_replace, regex=True)
     
     
     return mentions_df

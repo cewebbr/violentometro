@@ -82,12 +82,21 @@ def add_hate_score(model, input_file, output_file):
     try:
         # Leitura básica:
         df = pd.read_csv(input_file)
+
     except pd.errors.ParserError:
         # Erro pode ser causado por carriage return. Nesse caso, tenta:
         df = pd.read_csv(input_file, lineterminator='\n')        
-    
+
     # Rate:
-    y_pred = model.predict_proba(df['text'], verbose=0)
+    try:
+        # Classificação básica:
+        y_pred = model.predict_proba(df['text'], verbose=0)
+    
+    except TypeError:
+        # Erro pode ser causado por carriage return. Nesse caso, tenta:
+        df = pd.read_csv(input_file, lineterminator='\n')        
+        y_pred = model.predict_proba(df['text'], verbose=0)
+
     # Add column:
     df['hate_score'] = pd.Series(y_pred, index=df.index)
     
