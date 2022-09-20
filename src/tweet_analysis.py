@@ -923,7 +923,6 @@ def analyse_tweets(config):
 
 def driver():
     
-   
     # Read config:
     config = read_config('../tweets/tweets2metric_config.json')
     batch_time = config['analyse_ref_time']

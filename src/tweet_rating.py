@@ -167,7 +167,7 @@ def next_batch_time(capture_period, ini_date='2022-08-12T00:00:00', date_fmt='%Y
     return next_date
 
 
-def hate_score_batch(data_dir, input_term='/data/', output_term='/scored/', model='../modelos/bertimbau-hatespeech-v01', file_pattern='*.csv', verbose=True):
+def hate_score_batch(data_dir, input_term='/data/', output_term='/scored/', model='../modelos/bertimbau-hatespeech-v01', file_pattern='*.csv', verbose=True, gpu=True):
     """
     Apply hate speech model to all tweets in root folder 
     and save the original data with the extra score 
@@ -197,6 +197,8 @@ def hate_score_batch(data_dir, input_term='/data/', output_term='/scored/', mode
         expects a CSV file with a `text` column.
     verbose : bool
         Whether to print the filenames being rated.
+    gpu : bool
+        Whether to use GPU or not.
         
     Returns
     -------
@@ -204,7 +206,8 @@ def hate_score_batch(data_dir, input_term='/data/', output_term='/scored/', mode
         The number of tweets rated.
     """
     # Teste se GPU está disponível:
-    assert len(sw.tf.config.list_physical_devices('GPU')) > 0, 'Não encontrei nenhuma GPU.' 
+    if gpu is True:
+        assert len(sw.tf.config.list_physical_devices('GPU')) > 0, 'Não encontrei nenhuma GPU.' 
     # Desativa progress bar do hugging face:
     set_verbosity_error()
     
