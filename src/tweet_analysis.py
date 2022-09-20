@@ -107,6 +107,9 @@ def robust_load_csv(filename, low_memory=False, verbose=True, **kwargs):
             print('  !! Arquivo {} não foi aberto. Tentando evitar carriage return...'.format(filename))
         df = pd.read_csv(filename, low_memory=low_memory, lineterminator='\n', **kwargs) 
 
+    # Add column with file origin for control:
+    df['filename'] = filename
+        
     return df
 
 
@@ -922,7 +925,7 @@ def analyse_tweets(config):
     
 
 def driver():
-    
+
     # Read config:
     config = read_config('../tweets/tweets2metric_config.json')
     batch_time = config['analyse_ref_time']
