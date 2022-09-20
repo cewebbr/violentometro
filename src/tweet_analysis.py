@@ -700,7 +700,7 @@ def plot_hate_daily_series(hate_series, tweet_series):
     monday_ticks = pd.date_range('2022-08-15', '2022-10-03', freq='7D')
     
     # Cria figura:
-    f, axes = pl.subplots(3, 1, gridspec_kw={'height_ratios': [2, 2, 2]}, figsize=(10, 10))
+    f, axes = pl.subplots(3, 1, gridspec_kw={'height_ratios': [2, 2, 2]}, figsize=(10, 10), dpi=72)
     (a0, a1, a2) = axes
 
     # Plot da fração de tweets com agressões:
