@@ -28,6 +28,7 @@ import json
 import matplotlib.pyplot as pl
 import datetime as dt
 import time
+import sys
 
 
 def log_print(string, start=False):
@@ -945,5 +946,17 @@ def driver():
 
 # If running this code as a script:
 if __name__ == '__main__':
-     
-    driver()
+    
+    
+    # Run analysis now, if requested:
+    if len(sys.argv) > 1 and sys.argv[1] == 'now':
+        
+        # Read config:
+        config = read_config('../tweets/tweets2metric_config.json')
+        # Process data to produce summary stats and plots:
+        analyse_tweets(config)
+    
+    
+    # Infinite loop with scheduled run:
+    else:    
+        driver()
