@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Funções internas ao projeto Violentômetro
+Agregador diário de contagens de tweets e de ataques
 Copyright (C) 2022  Henrique S. Xavier
 Contact: hsxavier@gmail.com
 
@@ -757,6 +757,12 @@ def plot_hate_daily_series(hate_series, tweet_series):
     return f
 
 
+def write_js(webpage_data, filename):
+    content = "data = '" + json.dumps(webpage_data) + "'"
+    with open(filename, 'w') as f:
+        f.write(content)
+        
+
 def save_webpage_data(hate_series, fig_name, filename='../webpage/data/webpage_data.json'):
     """
     Write big numbers and a plot filename regarding the 
@@ -785,7 +791,7 @@ def save_webpage_data(hate_series, fig_name, filename='../webpage/data/webpage_d
                     'last_update': pd.to_datetime('today').strftime('%Y-%m-%dT%H:%M:%S')}
     
     # Salva JSON:
-    write_config(webpage_data, filename)
+    write_js(webpage_data, filename)
 
     
 def parse_utc_time(time_in, time_fmt='%Y-%m-%dT%H:%M:%S', bsb2utc=True):

@@ -239,8 +239,9 @@ def path2dt(path, time_fmt='%Y-%m-%dT%H:%M:%S'):
 
 def select_batches_to_score(first_batch, last_batch, data_dir, scored_dir, force_rate=False, data_folder_pattern='[!.]*'):
     """
-    Create a list of batch folders to score 
-    with the hate speech model.
+    Create a list of batch folders to score with the hate speech model.
+    The selected folders are those in the specified time range and that 
+    were not already rated (unless forcing the rate).
     
     Parameters
     ----------
@@ -292,11 +293,18 @@ def select_batches_to_score(first_batch, last_batch, data_dir, scored_dir, force
 
 
 def log_print(string, start=False):
+    """
+    Print the current time and the message `string`. If `start` is True,
+    start the printing with a '*'. 
+    """
     print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string), flush=True)
 
 
 def driver():
-    
+    """
+    Infinite loop that use a config file to define when and how to rate 
+    tweets for hate speech.
+    """
     # Init config:
     config = read_config()
     batch_time = config['batch_ref_time']

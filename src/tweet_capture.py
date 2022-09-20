@@ -729,6 +729,10 @@ def run_batch_capture(batch_time, twitter_df, config, previous_batch=None, verbo
 
 
 def sum_batch_tweets(batch_df):
+    """
+    Use the tweet capture log DataFrame `batch_df` to count the total number
+    of tweets captured in that batch.
+    """
     tot_tweets = int(batch_df.loc[batch_df['status'] == 'ok', 'batch_tweets'].sum())
     return tot_tweets
 
@@ -780,12 +784,31 @@ def load_saved_mentions(data_dir):
 
 
 def log_print(string, start=False):
+    """
+    Print the current time and the message `string`. If `start` is True,
+    start the printing with a '*'. 
+    """
     print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string), flush=True)
 
 
-def update_current_level(new_tweets, config):
+def update_current_level(new_tweets, config, ini_date):
+    """
+    Update the config file for the total number of tweets captured 
+    since the last monthly quota reset. 
+    """
+
+    # Parse cap renew date:
+    utc_renew_time = parse_utc_time(config['cap_renew_date'] + 'T00:00:00', bsb2utc=False)
+    # Get time of the next batch:
+    next_time = next_batch_time(config['capture_period'], ini_date=ini_date)
+
+    if next_time >= utc_renew_time:
+        # Reset counts if next batch is beyond the renew date:
+        config['curr_level'] = 0
+    else:
+        # Add last tweets to count:
+        config['curr_level'] += new_tweets
     
-    config['curr_level'] += new_tweets
     write_config(config)
 
 
@@ -839,7 +862,7 @@ def driver():
         log_print('Finished batch! Tweets captured: {:d}, Avg tweets: {:.3f}'.format(tot_tweets, avg_tweets))
         
         # Update config:
-        update_current_level(tot_tweets, config)
+        update_current_level(tot_tweets, config, batch_time)
         update_cap_renew_date(config, batch_time)
         log_print('Updated config! current level: {:d}, cap renew date: {}'.format(config['curr_level'], config['cap_renew_date']))
 
