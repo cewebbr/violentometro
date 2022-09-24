@@ -29,6 +29,7 @@ import matplotlib.pyplot as pl
 import datetime as dt
 import time
 import sys
+import subprocess
 
 
 def log_print(string, start=False):
@@ -971,7 +972,10 @@ def driver():
         # Process data to produce summary stats and plots:
         analyse_tweets(config)
     
+        # Upload to github:
+        subprocess.run(['../scripts/git_push_analysis.sh'])
 
+        
 # If running this code as a script:
 if __name__ == '__main__':
     
@@ -982,8 +986,7 @@ if __name__ == '__main__':
         # Read config:
         config = read_config('../tweets/tweets2metric_config.json')
         # Process data to produce summary stats and plots:
-        analyse_tweets(config)
-    
+        analyse_tweets(config)        
     
     # Infinite loop with scheduled run:
     else:    
