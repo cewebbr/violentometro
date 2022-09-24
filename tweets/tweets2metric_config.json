@@ -12,5 +12,6 @@
     "capture_period": 3,
     "official_start": "2022-08-16 03:30:00",
     "time_series_plot": "../webpage/www/assets/img/graficos/tweets_agressivos_por_dia_feminino.png",
+    "time_series_csv":  "../webpage/www/assets/data/tweets_agressivos_por_dia_feminino.csv",
     "webpage_json_file": "../webpage/www/assets/js/data.js"
 }

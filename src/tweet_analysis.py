@@ -693,6 +693,7 @@ def plot_hate_daily_series(hate_series, tweet_series):
     labelsize    = 14 
     legendsize   = 14
     pad_factor   = 1.1
+    middle_pad   = 0.1
     frame_color  = '0.1'
     grid_color   = '0.85'
     legend_loc   = 'upper right'
@@ -703,14 +704,13 @@ def plot_hate_daily_series(hate_series, tweet_series):
     f, axes = pl.subplots(3, 1, gridspec_kw={'height_ratios': [2, 2, 2]}, figsize=(10, 10), dpi=72)
     (a0, a1, a2) = axes
 
-    # Plot da fração de tweets com agressões:
+    # Plot do total de tweets:
     pl.sca(a0)
-    percent_series = (hate_series / tweet_series * 100)
-    percent_series.plot(marker='o', color='#fdcb09', label='Fração violenta')
+    (tweet_series).plot(marker='o', color='#e5c493', label='Todos os tweets')
     # Format:
     pl.xticks(monday_ticks, [''] * len(monday_ticks))
-    pl.ylim([percent_series.min() / pad_factor, percent_series.max() * pad_factor])
-    pl.ylabel('%', fontsize=labelsize, color=frame_color)
+    pl.ylim([0, tweet_series.max() * pad_factor])
+    pl.ylabel('Total de tweets', fontsize=labelsize, color=frame_color)
     a0.spines['top'].set_visible(False)
 
     # Plot do total de tweets com agressões:
@@ -718,16 +718,17 @@ def plot_hate_daily_series(hate_series, tweet_series):
     (hate_series).plot(marker='o', color='#5e6264', label='Tweets violentos')
     # Format:
     pl.xticks(monday_ticks, [''] * len(monday_ticks))
-    pl.ylim([0, hate_series.max() * pad_factor])
-    pl.ylabel('Número de tweets', fontsize=labelsize, color=frame_color)
+    pl.ylim([0, hate_series.max() * (pad_factor + middle_pad)])
+    pl.ylabel('Tweets violentos', fontsize=labelsize, color=frame_color, labelpad=12)
 
-    # Plot do total de tweets:
+    # Plot da fração de tweets com agressões:
     pl.sca(a2)
-    (tweet_series).plot(marker='o', color='#e5c493', label='Todos os tweets')
+    percent_series = (hate_series / tweet_series * 100)
+    percent_series.plot(marker='o', color='#fdcb09', label='Fração violenta')
     # Format:
     pl.xticks(monday_ticks, monday_ticks.strftime('%d/%m'))
-    pl.ylim([0, tweet_series.max() * pad_factor])
-    pl.ylabel('Número de tweets', fontsize=labelsize, color=frame_color)
+    pl.ylim([percent_series.min() / pad_factor, percent_series.max() * pad_factor])
+    pl.ylabel('Tweets violentos (%)', fontsize=labelsize, color=frame_color, labelpad=39)
 
     # General format:
     for ax in axes:
@@ -751,7 +752,7 @@ def plot_hate_daily_series(hate_series, tweet_series):
     
     # Formata números grandes no eixo:
     f.canvas.draw()
-    for ax in (a1, a2):
+    for ax in (a0, a1):
         labels = format_pt_ints(ax.get_yticklabels())
         ax.set_yticks(ax.get_yticks()[:-1])
         ax.set_yticklabels(labels[:-1])
@@ -761,7 +762,31 @@ def plot_hate_daily_series(hate_series, tweet_series):
     return f
 
 
+def data_to_csv(hate_series, tweet_series, outfile):
+    """
+    Save to a CSV file a table with three daily time series:
+    - The fraction of tweets that are violent;
+    - The number of tweets that are violent;
+    - The total number of tweets.
+    """
+
+    # Put data into a DataFrame
+    df = pd.DataFrame({'Total de tweets': tweet_series.round().astype(int), 'Número de tweets violentos': hate_series.round().astype(int)})
+    df['Porcentagem de tweets violentos'] = (df['Número de tweets violentos'] / df['Total de tweets'] * 100).round(2)
+    # Format the date index:    
+    df.index = pd.to_datetime(df.index).strftime('%d/%m/%Y')
+    df.index.name = 'Data'
+
+    # Export to CSV:
+    df.to_csv(outfile)
+
+
 def write_js(webpage_data, filename):
+    """
+    Write a piece of JavaScript code to a file `filename` (str)
+    containing a variable 'data' whose value is a JSON with 
+    data from `webpage_data` (dict).
+    """
     content = "data = '" + json.dumps(webpage_data) + "'"
     with open(filename, 'w') as f:
         f.write(content)
@@ -919,6 +944,9 @@ def analyse_tweets(config):
     fig = plot_hate_daily_series(hate_series, tweet_series)
     log_print('Saving time series plot...')
     fig.savefig(fig_name, transparent=True)
+    
+    # Salva informação do gráfico em tabela:
+    data_to_csv(hate_series, tweet_series, config['time_series_csv'])
     
     # Write info to JSON:
     log_print('Saving resulting data to JSON...')
