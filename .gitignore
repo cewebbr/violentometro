@@ -5,7 +5,8 @@ registros
 src/last_capture_pid
 src/last_rating_pid
 src/last_analysis_pid
-webpage/
+webpage/*
+!webpage/data/
 docs/*
 !docs/juridico/Aviso_privacidade_Violentometro_Ceweb.pdf
 gitpage/
