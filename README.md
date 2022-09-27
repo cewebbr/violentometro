@@ -47,6 +47,7 @@ encontram-se na pasta [dados/processados](dados/processados).
 O sistema de monitoramento e captura de tweets, escrito em Python, está disponível no arquivo
 [src/tweet_capture.py](src/tweet_capture.py). Ele utiliza o endpoint
 [mentions](https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions)
+da [API do Twitter](https://developer.twitter.com/en/docs/twitter-api)
 para capturar, a cada 3 horas, os tweets produzidos nas últimas 3 horas em resposta ou que citam as candidaturas. É importante notar
 que o endpoint [deixa de retornar alguns tweets](https://twittercommunity.com/t/missing-mentioned-tweets-from-the-user-timeline-from-api-get-2-users-id-mentions/169849)
 que, a princípio, deveria. Além disso, a resposta do endpoint se limita aos 800 tweets mais recentes, o que torna a captura incompleta
