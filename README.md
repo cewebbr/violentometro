@@ -1,30 +1,72 @@
 # Violentômetro - Violência política nas redes
 
-Módulo em Python que calcula a probabilidade de textos conterem
-discurso de ódio.
+Projeto de monitoramento de violência em mensagens direcionadas a candidatas e candidatos nas redes sociais.
+
+A versão atual deste projeto captura, de forma contínua, menções no Twitter feitas a candidatas e candidatos a deputado estadual
+e federal nas eleições de 2022. O grau de violência dessas menções é medido por um modelo de inteligência artificial (IA)
+do tipo "transformer", de arquiterura BERT, pré-treinado para tarefas em português.
 
 ## Estrutura do projeto
 
     .
-    ├── README.md               <- Este documento
-    ├── requirements.txt        <- Pacotes de python necessários
-    ├── analises                <- Notebook com o treinamento do modelo
-    ├── src                     <- Módulo em Python p/ usar o modelo
-    ├── dados                   <- Dados utilizados no projeto
-    ├── modelos                 <- Arquivos dos modelos treinados
-    └── LICENSE                 <- Licença de uso e cópia
-    
+    ├── analises           <- Notebooks com o treinamento dos modelos
+    ├── dados              <- Dados utilizados no projeto
+    ├── modelos            <- Arquivos dos modelos treinados
+    ├── src                <- Módulos em Python que capturam os dados e aplicam os modelos
+    ├── scripts            <- Shell scripts acessórios
+    ├── tweets             <- Configuração da captura, logs e destino dos tweets coletados
+    ├── webpage            <- Dados da página web de divulgação em tempo real dos dados
+    ├── LICENSE            <- Licença de uso e cópia
+    ├── README.md          <- Este documento
+    └── requirements.txt   <- Pacotes de python necessários
 
-## Descrição do projeto
 
-A metodologia deste projeto foi baseada em <https://github.com/diogocortiz/NLP_HateSpeech_Classifier>.
+## Perfis das candidaturas
+
+Os perfis no Twitter das candidaturas a deputados federal e estadual foram obtidos dos
+[dados abertos do TSE](https://dadosabertos.tse.jus.br/dataset/). As informações sobre
+as redes sociais das candidaturas são informadas durante seu registro de forma voluntária,
+de maneira que nem todas os perfis existentes e ativos estão ali listados. Os perfis do
+Twitter informados ao TSE foram complementados:
+
+1. Por uma lista dos perfis de deputados federais concorrendo à reeleição;
+
+2. Identificando a existência de perfis no Twitter com nome igual a perfis de candidaturas no Instagram, listados nos dados do TSE.
+   Os perfis identificados foram filtrados por um modelo de machine learning para remover homônimos (veja o arquivo
+   [analises/identificando_contas_twitter_pelo_instagram.ipynb](analises/identificando_contas_twitter_pelo_instagram.ipynb)).
+
+A lista de perfis de candidaturas foi complementada quando a captura já estava em funcionamento. Os períodos nos quais
+cada versão da lista foi utilizada estão registrados no arquivo
+[tweets/logs/twitter_id_pool_sources.log](tweets/logs/twitter_id_pool_sources.log). Todas as versões utilizadas
+encontram-se na pasta [dados/processados](dados/processados).
+
+
+## Sistema de monitoramento e captura de tweets
+
+O sistema de monitoramento e captura de tweets, escrito em Python, está disponível no arquivo
+[src/tweet_capture.py](src/tweet_capture.py). Ele utiliza o endpoint
+[mentions](https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions)
+para capturar, a cada 3 horas, os tweets produzidos nas últimas 3 horas em resposta ou que citam as candidaturas. É importante notar
+que o endpoint [deixa de retornar alguns tweets](https://twittercommunity.com/t/missing-mentioned-tweets-from-the-user-timeline-from-api-get-2-users-id-mentions/169849)
+que, a princípio, deveria. Além disso, a resposta do endpoint se limita aos 800 tweets mais recentes, o que torna a captura incompleta
+para os casos de mais de 800 menções feitas num período de 3 horas.
+
+Optamos por realizar a captura de maneira amostral. A cada 3 horas, sorteamos um terço dos perfis de candidaturas e realizamos a captura
+conforme descrito acima. Para evitar duplicidade nos tweets capturados, os perfis utilizados na captura anterior são ignorados ao
+sortear os perfis da captura seguinte.
+
+## IA de identificação de discursos violentos
+
+### O método
+
+A metodologia usada para identificar discursos violentos foi baseada em <https://github.com/diogocortiz/NLP_HateSpeech_Classifier>.
 As principais mudanças aplicadas foram:
 
 * Pacote Tensorflow no lugar do PyTorch;
 * Modelo BERTimbau no lugar do BERT multilingual;
 * Dados de Pelle & Moreira (2017) adicionados aos dados de Fortuna et al. (2019) para treinamento e validação.
 
-### O modelo ajustado
+#### O modelo ajustado
 
 O modelo de detecção de discurso de ódio disponibilizado aqui é um modelo transformer de
 arquitetura BERT pré-treinado para tarefas em português: [BERTimbau](https://huggingface.co/neuralmind/bert-base-portuguese-cased).
@@ -34,7 +76,7 @@ contém discurso de ódio a partir das bases disponibilizadas por
 [Pelle & Moreira (2017)](https://github.com/rogersdepelle/OffComBR). 
 
 
-### Dados utilizados
+#### Dados utilizados
 
 Ambos os trabalhos acima, que fornecem exemplos para treinamento de detecção de discurso de ódio,
 utilizam três anotadores para classificar cada exemplo.
@@ -50,12 +92,12 @@ uma classificação do tipo foram considerados livres desse tipo de discurso. A 
 seleções -- e utilizada para treinar o modelo disponibilizado aqui -- encontra-se em
 [dados/processados/hatespeech_fortuna3+offcombr2.csv](dados/processados/hatespeech_fortuna3+offcombr2.csv).
 
-## Usando o modelo via módulo
+### Usando o modelo via módulo
 
 Para facilitar o uso do modelo para previsão (i.e. classificação de textos entre discurso de ódio ou não),
 criamos o módulo [src/speechwrapper.py](src/speechwrapper.py).
 
-### Instalação
+#### Instalação
 
 O módulo utiliza os pacotes de Python: numpy, pandas, tensorflow, transformers e datasets
 (os dois últimos do [Hugging Face](https://huggingface.co)). Para avaliar o modelo no notebook
@@ -64,7 +106,7 @@ métricas do scikit-learn. Para instalar esses pacotes, você pode usar o comand
 
     pip install -r requirements.txt
 
-### Uso do módulo
+#### Uso do módulo
 
 Dentro da pasta `src`, começe importando o módulo:
 
@@ -88,6 +130,27 @@ estabelecido: 1, se o modelo considerá-lo discurso de ódio; e 0, caso contrár
     model.predict_proba(exemplos)
     # Output: array([0.09299637, 0.00845698], dtype=float32) 
 
-## Contato
+
+## Identificação do alvo (ou objeto) do tweet
+
+Após o início do projeto, percebemos ser comum que um candidato mencione um adversário em um tweet e que
+pessoas respondam ao candidato com ataques direcionados ao adversário, e não ao candidato em si.
+Nesses casos, a IA descrita acima identifica os ataques como violência, mas não os diferencia em termos do alvo. Para fazer essa
+diferenciação, criamos um modelo [Naive Bayes](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ComplementNB.html)
+(veja o notebook [analises/modelo_baseline_objeto_do_tweet.ipynb](analises/modelo_baseline_objeto_do_tweet.ipynb)).
+Duas versões desse modelo, sendo a segunda treinada em mais dados, estão disponíveis na pasta
+[modelos/](modelos/).
+
+
+## Finalmentes
+
+### Aviso de privacidade e proteção de dados
+
+Em conformidade à Lei Geral de Proteção de Dados Pessoais ([LGPD](http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm)),
+não disponibilizamos aqui os tweets coletados. Estes podem ser disponibilizados para fins de pesquisa mediante assinatura
+de termo de responsabilidade. Este projeto segue o aviso de privacidade disponível em
+[docs/juridico/Aviso_privacidade_Violentometro_Ceweb.pdf](docs/juridico/Aviso_privacidade_Violentometro_Ceweb.pdf).
+
+### Contato
 
 Para mais informações, entrar em contato com [Henrique S. Xavier](http://henriquexavier.net) (<https://github.com/hsxavier>).
