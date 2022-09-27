@@ -11,6 +11,7 @@ do tipo "transformer", de arquiterura BERT, pré-treinado para tarefas em portug
     .
     ├── analises           <- Notebooks com o treinamento dos modelos
     ├── dados              <- Dados utilizados no projeto
+    ├── docs               <- Outros documentos relacionados ao projeto
     ├── modelos            <- Arquivos dos modelos treinados
     ├── src                <- Módulos em Python que capturam os dados e aplicam os modelos
     ├── scripts            <- Shell scripts acessórios
