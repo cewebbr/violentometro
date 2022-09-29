@@ -1,13 +1,30 @@
-# Violentômetro - Violência política nas redes
+# Violentômetro - Um estudo da aplicabilidade de IA na detecção de violência
 
-Projeto de monitoramento de violência em mensagens direcionadas a candidatas e candidatos nas redes sociais.
+Este é um projeto de pesquisa ainda em andamento sobre as possibilidades e desafios do uso de
+Inteligência Artificial (IA) para a detecção de textos violentos na _web_, derivado do projeto anterior
+[cewebbr/Bert_HateSpeech_Classification](https://github.com/cewebbr/Bert_HateSpeech_Classification).
+Para viabilizar o estudo e teste dos métodos investigados, também produzimos uma ferramenta de coleta
+de postagens na rede social Twitter.
 
-A versão atual deste projeto captura, de forma contínua, menções no Twitter feitas a candidatas e candidatos a deputado estadual
-e federal nas eleições de 2022. O grau de violência dessas menções é medido por um modelo de inteligência artificial (IA)
-do tipo "transformer", de arquiterura BERT, pré-treinado para tarefas em português.
+**ATENÇÃO:** Os códigos e modelos aqui disponibilizados compõem etapas preliminares de um projeto
+de pesquisa e ainda não foram validados e verificados por especialistas. Eles não se propõem a definir o
+significado de violência ou discurso de ódio e nem a servir como ferramenta validadora de diferentes
+tipos de discurso. Esperamos que a comunidade técnica e científica possa aproveitar o material aqui disponível
+para aprofundar os estudos e discussões sobre Processamento de Linguagem Natural (NLP) e sua relação com a _web_.
 
-## Estrutura do projeto
 
+## Conteúdo e estrutura do projeto
+
+Este projeto contém:
+
+* um modelo experimental de IA de identificação de discursos violentos, treinado a partir de todas as instâncias anotadas
+disponíveis na literatura acadêmica;
+* um modelo de aprendizagem de máquina treinado para identificar o objeto do qual um certo texto trata;
+* notebooks apresentando o processo de construção, treinamento e teste dos modelos acima;
+* um código de captura automatizada de postagens no Twitter que mencionem perfis especificados pelo usuário; e
+* uma lista de perfis do Twitter, utilizados para teste da ferramenta. 
+
+### Estrutura
     .
     ├── analises           <- Notebooks com o treinamento dos modelos
     ├── dados              <- Dados utilizados no projeto
@@ -22,13 +39,12 @@ do tipo "transformer", de arquiterura BERT, pré-treinado para tarefas em portug
     └── requirements.txt   <- Pacotes de python necessários
 
 
-## Perfis das candidaturas
+## Perfis de teste
 
-Os perfis no Twitter das candidaturas a deputados federal e estadual foram obtidos dos
-[dados abertos do TSE](https://dadosabertos.tse.jus.br/dataset/). As informações sobre
-as redes sociais das candidaturas são informadas durante seu registro de forma voluntária,
-de maneira que nem todas os perfis existentes e ativos estão ali listados. Os perfis do
-Twitter informados ao TSE foram complementados:
+Para testar os métodos e modelos de detecção de violência, coletamos exemplos de texto da plataforma Twitter que
+mencionavam alguns perfis de teste: os das candidaturas a deputados federal e estadual nas eleições de 2022.
+Esses perfis foram obtidos dos [dados abertos do TSE](https://dadosabertos.tse.jus.br/dataset/), informados pelas
+candidaturas durante seu registro, de forma voluntária. Os perfis do Twitter informados ao TSE foram complementados:
 
 1. Por uma lista dos perfis de deputados federais concorrendo à reeleição;
 
