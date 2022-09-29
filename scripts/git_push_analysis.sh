@@ -3,10 +3,10 @@
 echo "Enter upload script..."
 stamp=`date +%Y-%m-%d_%H:%M:%S`
 msg="Auto-update webpage data >> $stamp"
-cd /home/hxavier/projetos/violentometro/
+cd /home/hxavier/projetos/violentometro/gitpage/
 
 echo "Add updates..."
-git add webpage/data
+git add assets
 
 echo "Commit updates..."
 git commit -m "$msg"

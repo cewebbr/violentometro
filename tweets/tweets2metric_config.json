@@ -11,7 +11,7 @@
     "cand_sel_query": "DS_GENERO == 'FEMININO'",
     "capture_period": 3,
     "official_start": "2022-08-16 03:30:00",
-    "time_series_plot": "../webpage/data/tweets_agressivos_por_dia_feminino.png",
-    "time_series_csv":  "../webpage/data/tweets_agressivos_por_dia_feminino.csv",
-    "webpage_json_file": "../webpage/data/data.js"
+    "time_series_plot": "../gitpage/assets/img/graficos/tweets_agressivos_por_dia_feminino.png",
+    "time_series_csv":  "../gitpage/assets/data/tweets_agressivos_por_dia_feminino.csv",
+    "webpage_json_file": "../gitpage/assets/js/data.js"
 }
