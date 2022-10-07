@@ -38,7 +38,9 @@ pre02_tweets/
 
 # Lixo do sistema
 analises/.ipynb_checkpoints
+analises/modelos/.ipynb_checkpoints
 analises/__pycache__
 #README.md#
 src/xavy/__pycache__
 src/__pycache__
+src/.ipynb_checkpoints
