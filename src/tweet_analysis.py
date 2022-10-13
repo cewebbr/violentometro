@@ -699,7 +699,8 @@ def plot_hate_daily_series(hate_series, tweet_series):
     grid_color   = '0.85'
     legend_loc   = 'upper right'
     grid_axis    = 'x'
-    monday_ticks = pd.date_range('2022-08-15', '2022-10-03', freq='7D')
+    time_range   = ['2022-08-15', '2022-11-01']
+    monday_ticks = pd.date_range(time_range[0], time_range[1], freq='7D')
     
     # Cria figura:
     f, axes = pl.subplots(3, 1, gridspec_kw={'height_ratios': [2, 2, 2]}, figsize=(10, 10), dpi=72)
@@ -745,7 +746,7 @@ def plot_hate_daily_series(hate_series, tweet_series):
         pl.sca(ax)
         pl.xlabel('')
         # Range:
-        pl.xlim(['2022-08-15', '2022-10-03'])
+        pl.xlim(time_range)
         # Grid:
         pl.grid(axis=grid_axis, color=grid_color)
         # Legend:
