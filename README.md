@@ -172,3 +172,5 @@ de termo de responsabilidade. Este projeto segue o aviso de privacidade disponí
 ### Contato
 
 Para mais informações, entrar em contato com [Henrique S. Xavier](http://henriquexavier.net) (<https://github.com/hsxavier>).
+
+
