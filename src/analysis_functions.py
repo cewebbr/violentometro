@@ -592,7 +592,8 @@ def platform_use_by_cand(cand_df, redes_df, redes_cols):
     return use_df
 
 
-def plot_platform_counts(cand_per_platform, n_cand, election_name, color='slateblue', alpha=0.5, labelsize=12, barwidth=0.8, drop_zero=True):
+def plot_platform_counts(cand_per_platform, n_cand, election_name=None, fig=None, 
+                         labelsize=12, barwidth=0.8, drop_zero=True, **kwargs):
     """
     Create a plot showing the fraction and number of candidates using each platform.
     
@@ -606,17 +607,17 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name, color='slateb
     election_name : str
         Name of the election (e.g. 'Eleições gerais 2022'), used as part of 
         the plot title.
-    color : str
-        Name of the color used for the bars.
-    alpha : float
-        Transparency of the bars.
+    fig : Figure or None
+        Figure on which to add the plots. If None, create a new Figure.
     labelsize : float
         Font size of the tick labels.
     barwidth : float
         A value between 0 and 1 specifying the width of the bars.
     drop_zero : bool
         Whether to remove from the plot the platforms that have no usage at all.
-        
+    kwargs : Dict
+        Keyword arguments for the plots.    
+    
     Returns
     -------
     fig : figure
@@ -628,12 +629,16 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name, color='slateb
         toplot_series = cand_per_platform.loc[cand_per_platform > 0]
     else:
         toplot_series = cand_per_platform
-        
-    fig = pl.figure(figsize=(10,10))
-    pl.suptitle('Redes sociais das candidaturas - {}'.format(election_name), fontsize=14)
+    
+    # Create figure is None provided:
+    if fig is None:
+        fig = pl.figure(figsize=(10,10))
+    
+    if election_name is not None:
+        pl.suptitle('Redes sociais das candidaturas - {}'.format(election_name), fontsize=14)
 
     pl.subplot(1,2,1)
-    (toplot_series / n_cand * 100).sort_values().plot(kind='barh', width=barwidth, color=color, alpha=alpha)
+    (toplot_series / n_cand * 100).plot(kind='barh', width=barwidth, **kwargs)
     pl.xlabel('% das candidaturas\n(podem indicar mais de uma rede)', fontsize=labelsize)
     # Format:
     pl.grid(axis='x', color='lightgray', linewidth=1)
@@ -644,7 +649,7 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name, color='slateb
     ax.spines['right'].set_visible(False)
 
     pl.subplot(1,2,2)
-    toplot_series.sort_values().plot(kind='barh', color=color, width=barwidth, alpha=alpha)
+    toplot_series.plot(kind='barh', width=barwidth, **kwargs)
     pl.xlabel('# de candidaturas\n(podem indicar mais de uma rede)', fontsize=labelsize)
     pl.xscale('log')
     # Format:
@@ -946,6 +951,7 @@ def plot_usage_frac_by_cat(count_stats, cmap_name='tab10', coffset=0, alpha=0.5,
 def plot_usage_frac_by_dimension(use_df, platforms, dimension, bins, 
                                  lower_clip=None, upper_clip=None, logscale=False, 
                                  pad_value=1e-06, coffset=0, xlabel=None, 
+                                 labelsize=14,
                                  label_rot=0, legend_loc=None, legend_size=10,
                                  horizontal=False):
     """
@@ -983,6 +989,8 @@ def plot_usage_frac_by_dimension(use_df, platforms, dimension, bins,
     xlabel : str
         Label for the `dimension`, in the x-axis. If None, use 
         `dimension`.
+    labelsize : float
+        Font size of the axis labels.
     label_rot : float
         Rotation of the x-axis labels.
     legend_loc : str or None
@@ -1007,7 +1015,8 @@ def plot_usage_frac_by_dimension(use_df, platforms, dimension, bins,
         # Plot:
         if xlabel is None:
             xlabel = dimension
-        plot_usage_frac_by_value(count_stats, xlabel, logscale=logscale, coffset=coffset)
+        plot_usage_frac_by_value(count_stats, xlabel, logscale=logscale, coffset=coffset,
+                                 labelsize=labelsize)
     
     # CATEGORICAL:
     else:
@@ -1020,7 +1029,8 @@ def plot_usage_frac_by_dimension(use_df, platforms, dimension, bins,
             count_stats = count_stats.loc[bins]
 
         # Plot:
-        plot_usage_frac_by_cat(count_stats, coffset=coffset, horizontal=horizontal)
+        plot_usage_frac_by_cat(count_stats, coffset=coffset, horizontal=horizontal,
+                               labelsize=labelsize)
 
     # Finally:
     if label_rot > 0:
