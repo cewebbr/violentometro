@@ -20,16 +20,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as pl
 from glob import glob
+from sklearn.feature_extraction.text import CountVectorizer
+import scipy.stats as stats
+from itertools import repeat
+from multiprocessing import Pool
 
 import xavy.dataframes as xd
 import xavy.tse as tse
 import xavy.stats as xx
 import xavy.utils as xu
 import xavy.plots as xp
+import xavy.drive as dr
+from xavy.text import text2tag
 
 
 def build_bem_features(df, index_cols):
@@ -140,7 +147,7 @@ def etl_votos_nominais(filename, turno=1,
     return total_votos
 
 
-def load_cand_eleitorado_bens_votos(cand_file, eleitorado_file, bens_file, votos_file,
+def load_cand_eleitorado_bens_votos(cand_file, eleitorado_file, bens_file, votos_file, lgbt_sq_cand=None,
                               cand_sel_cols=['SQ_CANDIDATO', 'NM_CANDIDATO', 'NM_URNA_CANDIDATO', 'NR_CPF_CANDIDATO', 'NR_TITULO_ELEITORAL_CANDIDATO', 
                                              'SG_PARTIDO', 'SG_UF', 'SG_UE', 'NM_UE', 'DS_CARGO', 'NM_SOCIAL_CANDIDATO', 'NR_IDADE_DATA_POSSE', 
                                              'DS_GENERO', 'DS_GRAU_INSTRUCAO', 'DS_COR_RACA'],
@@ -163,6 +170,10 @@ def load_cand_eleitorado_bens_votos(cand_file, eleitorado_file, bens_file, votos
     votos_file : str
         Path to the raw TSE file containing the number of votes received by 
         each candidate at each municipality-electoral zone.
+    lgbt_sq_cand : iterable or None
+        List-like or set of 'SQ_CANDIDATO's that
+        are listed on the VoteLGBT platform. If 
+        None, this is ignored.
     cand_sel_Cols : list of str
         Columns in `cand_file` to keep.
     drop_duplicates : bool
@@ -207,6 +218,14 @@ def load_cand_eleitorado_bens_votos(cand_file, eleitorado_file, bens_file, votos
     votos_df = etl_votos_nominais(votos_file)
     cand_df = cand_df.join(votos_df, on='SQ_CANDIDATO')
     
+    if lgbt_sq_cand is not None:
+        # Cria série que identifica se há cadastro no VoteLGBT:    
+        lgbt_series = pd.Series('Sem cadastro', index=cand_df.index)
+        lgbt_series.loc[cand_df['SQ_CANDIDATO'].isin(lgbt_sq_cand)] = 'Cadastro no VoteLGBT'
+        lgbt_series.name = 'VOTE_LGBT'
+        # Adiciona info do VoteLGBT:
+        cand_df = cand_df.join(lgbt_series)
+
     return cand_df
 
 
@@ -568,7 +587,7 @@ def platform_use_by_cand(cand_df, redes_df, redes_cols):
         contains the dummy variables specifying 
         if the platform in 'DS_URL' column is 
         the one in question.
-        
+
     Returns
     -------
     use_df : DataFrame
@@ -578,7 +597,8 @@ def platform_use_by_cand(cand_df, redes_df, redes_cols):
     """
     
     # Junta info dos candidatos com redes declaradas (vários candidatos não declararam rede nenhuma):
-    use_df = cand_df.join(redes_df.groupby('SQ_CANDIDATO')[redes_cols].sum().clip(upper=1), on='SQ_CANDIDATO', how='left')
+    use_redes = redes_df.groupby('SQ_CANDIDATO')[redes_cols].sum().clip(upper=1)
+    use_df = cand_df.join(use_redes, on='SQ_CANDIDATO', how='left')
     assert len(use_df) == len(cand_df)
 
     # Preenche quem não declarou com "nenhuma":
@@ -593,7 +613,8 @@ def platform_use_by_cand(cand_df, redes_df, redes_cols):
 
 
 def plot_platform_counts(cand_per_platform, n_cand, election_name=None, fig=None, 
-                         labelsize=12, barwidth=0.8, drop_zero=True, **kwargs):
+                         labelsize=12, barwidth=0.8, drop_zero=True, lims=None,
+                         **kwargs):
     """
     Create a plot showing the fraction and number of candidates using each platform.
     
@@ -615,6 +636,10 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name=None, fig=None
         A value between 0 and 1 specifying the width of the bars.
     drop_zero : bool
         Whether to remove from the plot the platforms that have no usage at all.
+    lims : list of tuples or None
+        Limits to the plot range in the x axis, for the fraction plot (on the
+        left) and the absolute counts (on the right). Each limit can be replaced
+        by None, in which case the range for the respective plot is not set.        
     kwargs : Dict
         Keyword arguments for the plots.    
     
@@ -647,10 +672,13 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name=None, fig=None
     ax.set_axisbelow(True)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    if type(lims) is list:
+        if lims[0] is not None:
+            pl.xlim(lims[0])
 
     pl.subplot(1,2,2)
     toplot_series.plot(kind='barh', width=barwidth, **kwargs)
-    pl.xlabel('# de candidaturas\n(podem indicar mais de uma rede)', fontsize=labelsize)
+    pl.xlabel('Número de candidaturas\n(podem indicar mais de uma rede)', fontsize=labelsize)
     pl.xscale('log')
     # Format:
     pl.grid(axis='x', color='lightgray', linewidth=1)
@@ -661,15 +689,51 @@ def plot_platform_counts(cand_per_platform, n_cand, election_name=None, fig=None
     ax.yaxis.tick_right()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-
+    if type(lims) is list:
+        if lims[1] is not None:
+            pl.xlim(lims[1])
+            
     pl.subplots_adjust(wspace=0.04, top=0.95)
     
     return fig
 
 
+def clipped_values_to_edges(values, n_bins, logscale=False, pad_value=1e-6):
+    """
+    Build bin edges given the data and parameters provided.
+    
+    Parameters
+    ----------
+    values : values
+        Values to be binned, already clipped to avoid outliers if any).
+    n_bins : int
+        Number of bins (not edges).
+    logscale : bool
+        Whether to build equally-spaced bins in a linear or log scale.
+    pad_value : float
+        Positive value subtracted from the lower bound of the bins
+        and added to the upper bound of the bins.
+    
+    Returns
+    -------
+    values_bins : array
+        The bin edges. There are `n_bins` + 1 entries.
+    """
+    
+    # Build bin edges:
+    max_values = values.max()
+    min_values = values.min()   
+    if logscale is True:
+        values_bins = np.logspace(np.log10(min_values - pad_value), np.log10(max_values + pad_value), n_bins + 1)
+    else:
+        values_bins = np.linspace(min_values - pad_value, max_values + pad_value, n_bins + 1)
+
+    return values_bins
+
+
 def values_to_bins(series, n_bins, lower_clip=None, upper_clip=None, logscale=False, pad_value=1e-6):
     """
-    Build bin labels for each value in the provided Series.
+    Build bin labels for each non-null value in the provided Series.
     
     Parameters
     ----------
@@ -690,7 +754,7 @@ def values_to_bins(series, n_bins, lower_clip=None, upper_clip=None, logscale=Fa
     Returns
     -------
     values_labels : Series
-        The bin labels for each value in `series`. The index is the 
+        The bin labels for each non-null value in `series`. The index is the 
         same as in `series`.
     """
     
@@ -699,13 +763,8 @@ def values_to_bins(series, n_bins, lower_clip=None, upper_clip=None, logscale=Fa
     values = series.clip(lower=lower_clip, upper=upper_clip)
 
     # Build bin edges:
-    max_values = values.max()
-    min_values = values.min()   
-    if logscale is True:
-        values_bins = np.logspace(np.log10(min_values - pad_value), np.log10(max_values + pad_value), n_bins + 1)
-    else:
-        values_bins = np.linspace(min_values - pad_value, max_values + pad_value, n_bins + 1)
-
+    values_bins = clipped_values_to_edges(values, n_bins, logscale, pad_value)
+    
     # Retorna rótulo de bin para cada valor da série:
     #assert values_bins[1] > 10, 'Bin width are smaller than 10, this is bad for the rounding we perform.'
     values_labels = ((values_bins[1:] + values_bins[:-1]) / 2).astype(int)
@@ -719,6 +778,42 @@ def values_to_bins(series, n_bins, lower_clip=None, upper_clip=None, logscale=Fa
     return values_digit
 
 
+def values_to_edges(series, n_bins, lower_clip=None, upper_clip=None, logscale=False, pad_value=1e-6):
+    """
+    Build bin edges given the data and parameters provided.
+    
+    Parameters
+    ----------
+    series : Series
+        Values to be binned.
+    n_bins : int
+        Number of bins (not edges).
+    lower_clip : float or None
+        Lower clipping bound for `series` when binning.
+    upper_clip : float or None
+        Upper clipping bound for `series` when binning.
+    logscale : bool
+        Whether to build equally-spaced bins in a linear or log scale.
+    pad_value : float
+        Positive value subtracted from the lower bound of the bins
+        and added to the upper bound of the bins.
+    
+    Returns
+    -------
+    values_bins : array
+        The bin edges. There are `n_bins` + 1 entries.
+    """
+    
+    # Clip series:
+    series = series.loc[~series.isnull()]
+    values = series.clip(lower=lower_clip, upper=upper_clip)
+
+    # Build bin edges:
+    values_bins = clipped_values_to_edges(values, n_bins, logscale, pad_value)
+    
+    return values_bins
+
+    
 def plot_bin_counts(series, n_bins, lower_clip=None, upper_clip=None, logscale=False, pad_value=1e-06):
     """
     Plot the number of instances per bin, given a binning strategy.
@@ -1085,3 +1180,1122 @@ def stats_to_plot_input(count_stats, mean_prefix='freq_', min_prefix='min_', max
     err = (err_low, err_up)
     
     return exp_p, err
+
+
+def vocab_size(series):
+    """
+    Returns the vocabulary size of a corpus `series` (Series of str), 
+    ignoring accents and cases.
+    """
+    
+    vec = CountVectorizer(strip_accents='unicode', lowercase=True)
+    vsize = len(vec.fit(series.fillna('')).get_feature_names_out())
+    
+    return vsize
+
+
+def select_twitter_ids(ids_df, selector, verbose=True):
+    """
+    Return unique twitter IDs selected from the provided DataFrame.
+    
+    Parameters
+    ----------
+    ids_df : DataFrame
+        A dataset containing the twitter IDs under the column 'id',
+        among other columns.
+    selector : Series
+        Boolean series stating if each row in `ids_df` should be 
+        selected.
+    verbose : bool
+        Whether to print the number of IDs selected.
+    
+    Returns
+    -------
+    twitter_ids : Series
+        Unique (no duplicates) IDs from `ids_df`, selected according
+        to `selector`.
+    """
+    
+    twitter_ids = ids_df.loc[selector, 'id'].drop_duplicates()
+    if verbose is True:
+        print('Encontramos {} perfis nesse grupo.'.format(len(twitter_ids)))
+    
+    return twitter_ids
+
+
+def mentions_to_pop(tweets_df, min_mentions, verbose=True):
+    """
+    Select tweets directed to popular users.
+    
+    Paramreters
+    -----------
+    tweets_df : DataFrame
+        Tweets (one per line) mentioning some twitter user. The mentioned user ID 
+        is given by the column 'batch_user'.
+    min_mentions : int
+        Minimum number of tweets in `tweets_df` mentioning a certain user required 
+        for that user to be selected.
+    verbose : bool
+        Whether to print the number of mentioned users selected.
+    
+    Returns
+    -------
+    tweet_pop_df : DataFrame
+        Slice of `tweets_df` containing all and only the tweets that mention the 
+        users with the minimum number of mentions `min_mentions`.
+    """
+    
+    # Count mentions per candidate:
+    n_tweets_per_cand = tweets_df['batch_user'].value_counts()
+    # Get candidates with minimum number of mentions:
+    pop_cands = n_tweets_per_cand.loc[n_tweets_per_cand >= min_mentions].index.values
+    
+    if verbose is True:
+        print('Encontramos {} perfis com no mínimo {} menções.'.format(len(pop_cands), min_mentions))
+    
+    # Select mentions to these candidates:
+    tweet_pop_df = tweets_df.loc[tweets_df['batch_user'].isin(pop_cands)]
+    
+    return tweet_pop_df
+
+
+def mentions_to_pop_in_group(tweets_df, ids_df, selector, min_mentions, verbose=True):
+    """
+    Select tweets that target popular candidates (i.e. with number of mentions above
+    a threshold) belonging to the specified selection.
+    
+    Parameters
+    ----------
+    tweets_df : DataFrame
+        Tweets (one per line) mentioning some twitter user. The mentioned user ID 
+        is given by the column 'batch_user'.
+    ids_df : DataFrame
+        Table of candidate's twitter IDs (in column 'id') and their associated 
+        social characteristics.
+    selector : Series
+        Boolean series with same length and index as `ids_df` stating if each row 
+        in `ids_df` should be selected.
+    min_mentions : int
+        Minimum number of tweets in `tweets_df` mentioning a certain user required 
+        for that user to be selected.
+    verbose : bool
+        Whether to print the number of IDs selected.
+        
+    Returns
+    -------
+    sel_tweets_df : DataFrame
+        Slice of `tweets_df` containing all and only the tweets directed to candidates
+        selected and with a mininum of mentions.
+    """
+    
+    # Select tweets targeting the specified candidates:
+    twitter_ids = select_twitter_ids(ids_df, selector, verbose)
+    group_df = tweets_df.loc[tweets_df['batch_user'].isin(twitter_ids)]
+    
+    # Select only tweets mentioning popular candidates:
+    sel_tweets_df = mentions_to_pop(group_df, min_mentions, verbose)
+    
+    return sel_tweets_df
+
+
+def bin_prob(series, bin_width):
+    """
+    Returns the bin number for each entry in Series.
+    
+    Parameters
+    ----------
+    series : Series
+        Values to be binned.
+    bin_width : float
+        Size of the bin.
+    
+    Returns
+    -------
+    A bin ID for each value in `series`. The edges of the bin `i` are given by:
+    `i * bin_width` and `(i + 1) * bin_width`.
+    """
+    
+    return (series / bin_width).astype(int)
+
+
+def equal_prob_weights(series):
+    """
+    Return weights for sampling the given Series such that each unique 
+    value is equally likely to get sampled.
+    
+    Parameters
+    ----------
+    series : Series
+        Series of categorical variables that probably repeat.
+    
+    Returns
+    -------
+    df : DataFrame
+        Table with the original categorical values, their counts and 
+        respective weights.
+    """
+    
+    counts = series.value_counts()
+    df = counts.reset_index()
+    df.rename({'index':series.name, series.name: 'n_' + series.name}, axis=1, inplace=True)
+    df['w_' + series.name] = 1 / df['n_' + series.name]
+    
+    return df
+
+
+def build_sampling_weight_df(tweets_df, dim1='batch_user', dim2='prob_bin', dim2_exp=1.0):
+    """
+    Create a DataFrame with weights for sampling the input so its marginal distributions 
+    under the two specified dimensions are not extremely different from uniform.
+    
+    (The weight factoring anzatz we use leads to actually non-uniform distributions)
+    
+    Parameters
+    ----------
+    tweets_df : DataFrame
+        Table whose rows are to be sampled.
+    dim1 : str
+        Name of column in `tweets_df` containing categorical values that are to be sampled 
+        such that the likelyhood of each unique value is the same.
+    dim2 : str
+        Same as `dim2`, but for another column.
+    dim2_exp : floatquanto
+        Exponent applied to the inverse of `dim2` frequency. Values greater than 1.0 decrease
+        the importance of `dim2` during sampling, and a value smaller than 1.0 increase it.
+
+    Returns
+    -------
+    weight_df : DataFrame
+        Table with a column 'w_eq_sampling' containing a weight for each combination of the unique 
+        values in `dim1` and `dim2` columns in `tweets_df`.        
+    """
+    weight_df = xd.cross_join_dfs(equal_prob_weights(tweets_df[dim1]), equal_prob_weights(tweets_df[dim2]))
+    weight_df['w_eq_sampling'] = weight_df['w_' + dim1] * weight_df['w_' + dim2] ** dim2_exp
+    
+    return weight_df
+
+
+    """
+    Sample tweets targeting popular candidates within a specified group, trying to 
+    return similar frequencies for rates of directed violence and for different 
+    candidates.
+    
+    Parameters
+    ----------
+    tweets_df : DataFrame
+        Tweets (one per line) mentioning some twitter user. The mentioned user ID 
+        is given by the column 'batch_user'.
+    ids_df : DataFrame
+        Table of candidate's twitter IDs (in column 'id') and their associated 
+        social characteristics.
+    selector : Series
+        Boolean series with same length and index as `ids_df` stating if each row 
+        in `ids_df` should be selected.
+    min_mentions : int
+        Minimum number of tweets in `tweets_df` mentioning a certain user required 
+        for that user to be selected.
+    prob_bin : float
+        Size of the bin used for binning the directed violence score in order to 
+        sample the tweets.
+    cand_exp : float
+        Exponent applied to the inverse of candidate frequency, when sampling. Values 
+        greater than 1.0 decrease the importance of the candidate dimension during 
+        sampling, and a value smaller than 1.0 increase it.        
+    n_samples : int
+        Number of tweet samples to return.
+    random_state : int
+        Seed for the sampling.
+    verbose : bool
+        Whether to print the number of IDs selected.
+        
+    Returns
+    -------
+    tweet_sample_df : DataFrame
+        Sampled rows of `tweets_df` with added probability bin and weight columns.
+        The sampling use weights to push the marginal distributions on the targeted
+        candidates and on the directed violence rate close to uniform.
+    """
+    
+    # Select popular candidates among the specified group:
+    tweet_pool_df = mentions_to_pop_in_group(tweets_df, ids_df, selector, min_mentions, verbose)
+    
+    # Add sampling weights to the tweets:
+    tweet_pool_df['prob_bin'] = bin_prob(tweet_pool_df['hate_score'], prob_bin)
+    weights = build_sampling_weight_df(tweet_pool_df, dim2_exp=cand_exp).set_index(['batch_user', 'prob_bin'])[['n_prob_bin', 'n_batch_user', 'w_batch_user', 'w_prob_bin', 'w_eq_sampling']]
+    tweet_pool_df = tweet_pool_df.join(weights, on=('batch_user', 'prob_bin'))
+
+    # Sample the tweets:
+    tweet_sample_df = tweet_pool_df.sample(n_samples, replace=False, weights='w_eq_sampling', random_state=random_state)
+    
+    return tweet_sample_df
+
+
+def plot_tweet_sampling_diagnosis(tweet_sample_df):
+    """
+    Create diagnostic plots for the tweet sample.
+    """
+    
+    pl.figure(figsize=(15,4))
+
+    pl.subplot(1, 3, 1)
+    tcounts = tweet_sample_df['prob_bin'].value_counts().sort_index()
+    pl.bar(tcounts.index, tcounts.values)
+    pl.xlabel('prob_bin')
+    pl.ylabel('Núm. de tweets na amostra')
+
+    pl.subplot(1, 3, 2)
+    tcounts = tweet_sample_df['batch_user'].value_counts()
+    tcounts.hist(bins=range(tcounts.max() + 2))
+    pl.xlabel('Núm. de menções à candidatura')
+    pl.ylabel('Núm. de candidatos')
+    
+    test_sampling = pd.DataFrame()
+    test_sampling['counts']   = tweet_sample_df['batch_user'].value_counts()
+    test_sampling['mentions'] = tweet_sample_df[['batch_user', 'n_batch_user']].drop_duplicates().set_index('batch_user')
+
+    pl.subplot(1,3,3)
+    pl.scatter(test_sampling['mentions'], test_sampling['counts'], alpha=0.2)
+    pl.xscale('log')
+    pl.xlabel('Núm. de tweets no pool')
+    pl.ylabel('Núm. de tweets na amostra')
+
+    pl.show()
+    
+
+def export_sample_for_annotation(tweet_sample_df, filename, specificity, verbose=True):
+    """
+    Create a CSV file with the input sample tweets, along with empty column 
+    for manual annotation.
+    
+    Parameters
+    ----------
+    tweet_sample_df : DataFrame
+        Sample tweets for annotation. Required columns are: 'id' (tweet ID),
+        'text' (tweet content) and 'tweet_url' (link to the Tweet).
+    filename : str
+        Where to save the CSV file with the tweets. This might contain a '{}'
+        that will be filled accordingly to `specificity`.
+    specificity : str
+        One on {'LGBTfóbico', 'controle', 'machista', 'racista'}. This names 
+        the last column for annotation and changes the filename if '{}' is 
+        in `filename`.
+    verbose : bool
+        Whether to print the destination file.
+    """
+    
+    # Hard-coded:
+    file_suffix = {'racista':'pessoas_negras', 'machista':'mulheres', 'LGBTfóbico':'lgbts', 'controle':'controle'}
+    assert specificity in file_suffix.keys(), '`specificity` options are: {}'.format(set(file_suffix.keys()))
+    sample_cols = ['id', 'text', 'tweet_url', 'n_prob_bin']
+
+    # Create table:
+    togo_df = tweet_sample_df[sample_cols].copy()
+    togo_df['É violento?\n(1=sim, 0=não)'] = np.NaN
+    togo_df['O candidato é o objeto do comentário?\n(1=sim, 0=não)'] = np.NaN
+    togo_df['Comentário é racista/machista/LGBTfóbico?\n(1=sim, 0=não)'.format(specificity)] = np.NaN
+
+    # Export
+    outfile = filename.format(file_suffix[specificity])
+    togo_df.to_csv(outfile, index=False)
+    if verbose is True:
+        print('Data saved to {}'.format(outfile))
+        
+
+def load_annotations_from_local_or_drive(row, force_drive=False, save_data=True):
+    """
+    Load tweet annotation table from a local file or from Google Sheets.
+    
+    Parameters
+    ----------
+    row : Series
+        A list of informations about the annotation data to load, with keys:
+        'Grupo', 'Anotador', 'Link'.
+    force_drive : bool
+        Whether to download data from Google Sheets even if the local file exists.    
+    save_data : bool
+        Wheter to save downloaded data to local file or not.]
+    """
+    
+    # Define nome de arquivo onde salvar:
+    filename = '../dados/brutos/eletweet22/tweets_anotados_{}_{}.csv'.format(text2tag(row['Grupo']), row['Anotador'])
+    annotation_df = dr.load_data_from_local_or_drive(row['Link'], filename, force_drive=force_drive, save_data=False)
+    
+    #annotation_df['id'] = annotation_df['id'].astype(int)
+    annotation_df['id'] = annotation_df['tweet_url'].str.split('/').str.slice(-1).str.join('|').astype(int)
+    
+    if (os.path.isfile(filename) == False or force_drive == True) and save_data is True:
+        print('Saving data to file...')
+        annotation_df.to_csv(filename, index=False)
+    
+    return annotation_df
+
+
+def prepare_one_group_annotation(df, annotator):
+    """
+    Get a raw tweet annotations from one annotator and prepare it for 
+    joining with other annotations.
+    """
+    
+    # Hard-coded:
+    base = ['id', 'text', 'tweet_url']
+    orig = ['É violento?\n(1=sim, 0=não)',
+           'O candidato é o objeto do comentário?\n(1=sim, 0=não)',
+           'Comentário é racista?\n(1=sim, 0=não)',
+           'Comentário é machista?\n(1=sim, 0=não)',
+           'Comentário é LGBTfóbico?\n(1=sim, 0=não)']
+    to = ['violento', 'cand_objeto', 'racista', 'machista', 'lgbtfobico']
+    
+    # Verifica que todas as colunas esperadas existem:
+    missing_cols = set(base + orig) - set(df.columns)
+    assert missing_cols == set(), 'As seguintes colunas do anotador {} estão faltando: {}.'.format(annotator, missing_cols)
+    
+    # Renomeando colunas:
+    to = [t + '_' + annotator for t in to]
+    col_renamer = dict(zip(orig, to))
+    df.rename(col_renamer, axis=1, inplace=True)
+    
+    # Seleciona colunas (evita colunas novas criadas pelos anotadores):
+    df = df[base + to]
+    
+    # Sanity check:
+    assert xd.iskeyQ(df[['id']]), "Existem tweets duplicados"
+
+    # Coloca tweet ID como índice:
+    df.set_index('id', inplace=True)
+    
+    return df
+
+
+def etl_one_group_annotation(row, force_drive=False, save_data=True):
+    """
+    Load and clean tweet annotations given the metadata provided.
+    
+    Parameters
+    ----------
+    row : Series
+        Metadata about the tweet annotations to load and clean. 
+        Required fields are: 'Grupo', 'Anotador' e 'Link'.
+    force_drive : bool
+        Whether to download data from Google Sheets even if the local file exists.    
+    save_data : bool
+        Wheter to save downloaded data to local file or not.]
+
+    Returns
+    -------
+    df : DataFrame
+        Cleaned annotations loaded from the local CSV file or Google Sheets
+        referred by the metadata provided at `row`.
+    """
+    
+    # Load raw data from Sheets or from local file:
+    df = load_annotations_from_local_or_drive(row, force_drive, save_data)
+    # Prepare data:
+    df = prepare_one_group_annotation(df, row['Anotador'])
+    
+    return df
+
+
+def etl_group_annotations(dir_df, group, force_drive=False, save_data=True):
+    """
+    Load and join all annotations for the same tweets.
+    
+    Parameters
+    ----------
+    dir_df : DataFrame
+        Table of Sheets that contain the annotations. Expected columns are:
+        'Grupo', 'Anotador', 'id', 'Link', 'text', 'tweet_url'.
+    group : str
+        Nome do grupo para selecionar.
+    force_drive : bool
+        Whether to download data from Google Sheets even if the local file exists.    
+    save_data : bool
+        Wheter to save downloaded data to local file or not.
+    
+    Returns
+    -------
+    joined_df : DataFrame
+        All annotations for `group` joined by tweet ID. 
+    """
+    
+    # Hard-coded:
+    check_cols = ['text', 'tweet_url']
+    
+    # Seleciona grupo social de candidatos:
+    group_sheets_df = dir_df.query('Grupo == "{}"'.format(group))
+
+    # Pega o primeiro conjunto de anotações:
+    row = group_sheets_df.iloc[0]
+    grupo = row['Grupo']
+    joined_df = etl_one_group_annotation(row, force_drive=force_drive, save_data=save_data)
+
+    # Loop sobre os demais conjuntos de anotações:
+    for i in range(1, len(group_sheets_df)):
+
+        # Pega o primeiro conjunto de anotações:
+        row = group_sheets_df.iloc[i]
+        assert row['Grupo'] == grupo, 'A lista de sheets fornecida não correpondem a um único grupo social.'
+        extra_df = etl_one_group_annotation(row, force_drive=force_drive, save_data=save_data)
+
+        # Verifica que os dados tratam dos mesmos tweet IDs:}
+        assert set(joined_df.index) == set(extra_df.index), 'O conjunto de IDs dos tweets do anotador {} é diferente dos do anotador anterior'.format(row['Anotador'])
+
+        # Cria uma tabela de teste de junção:
+        test_df = joined_df[check_cols].join(extra_df[check_cols], how='outer', lsuffix='_A', rsuffix='_B')
+
+        # Verifica se a junção das tabelas resulta nas propriedades esperadas:
+        assert len(test_df) == len(joined_df), 'Junção das tabelas de anotações aumentou o número de linhas.'
+        assert test_df.isnull().any().any() == False, 'Algum texto ou URL de tweet está faltando.'
+
+        # Verifica se os conteúdos dos tweets são os mesmos nas duas tabelas:
+        for col in check_cols:
+            assert (test_df[col + '_A'] == test_df[col + '_B']).all(), 'As duas colunas de {} têm conteúdos diferentes.'.format(col)
+
+        # Junta anotações numa tabela só:
+        joined_df = joined_df.join(extra_df.drop(check_cols, axis=1))
+
+        # Padroniza valores faltantes:
+        joined_df.replace('', np.NaN, inplace=True)
+        
+    return joined_df.drop(check_cols, axis=1)
+
+
+def find_cols(df, substr):
+    """
+    Return a list of `df` (DataFrame) columns that contain `substr` (str)
+    as a substring.
+    """
+    return list(filter(lambda s: s.find(substr) != -1, df.columns))
+
+
+def classification_mode(df, col, default, annotator_tag='_A'):
+    """
+    Do a majority summary of the annotations.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Table of annotated tweets. The relevant columns should contain
+        only 0s and 1s. Each annotator gives its classification in a 
+        separate column.
+    col : str
+        Substring present in the columns to summarize. The classification
+        given in these columns enter in a majority voting.
+    default : 1 or 0
+        What final classification to use in case the annotator's classes
+        enter a tie.
+    annotator_tag : str
+        Suffix appended to `col` when looking for columns to summarize the
+        annotations. This is to avoid columns containing already summarized
+        information.
+    Returns
+    -------
+    final_mode : Series
+        Series containing the mode of the classifications given in the 
+        columns with substring given by `col`. Ties are set to `default`.
+    """
+    
+    # Security check:
+    assert default in {0, 1}, "`default` pode ser 0 ou 1, mas encontrei o valor '{}'.".format(default)
+    
+    # Seleciona as colunas:
+    cols = find_cols(df, col + annotator_tag)
+    assert len(cols) >= 1, "Nenhuma coluna com a substring '{}' foi encontrada.".format(col) 
+    # Data quality check:
+    assert df[cols].isin([0, 1, np.NaN]).all().all(), "Encontrei algum valor nas colunas '{}' diferente de 0 ou 1.".format(col)
+    
+    # Pega os valores mais frequentes por linha (mais de um em caso de empate):
+    modes = df[cols].mode(axis=1)
+    assert len(modes.columns) <= 2
+
+    # Para lidar com casos de empate (mais de uma moda):
+    if default == 0:
+        final_mode = modes.min(axis=1)
+    else:
+        final_mode = modes.max(axis=1)
+    # Rename series:
+    final_mode.name = col + '_final'
+
+    return final_mode
+
+
+def n_classifications(df, col, annotator_tag='_A'):
+    """
+    Count the number of classifications given by annotators.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Table of annotated tweets. The relevant columns should contain
+        only 0s and 1s. Each annotator gives its classification in a 
+        separate column.
+    col : str
+        Substring present in the columns to check for classifications. 
+    annotator_tag : str
+        Suffix appended to `col` when looking for columns to summarize the
+        annotations. This is to avoid columns containing already summarized
+        information.
+    
+    Returns
+    -------
+    final_mode : Series
+        Series containing the number of classifications given in the 
+        columns with substring given by `col`.
+    """
+        
+    # Seleciona as colunas:
+    cols = find_cols(df, col + annotator_tag)
+    assert len(cols) >= 1, "Nenhuma coluna com a substring '{}' foi encontrada.".format(col) 
+    # Data quality check:
+    assert df[cols].isin([0, 1, np.NaN]).all().all(), "Encontrei algum valor nas colunas '{}' diferente de 0 ou 1.".format(col)
+    
+    # Pega os valores mais frequentes por linha (mais de um em caso de empate):
+    n = (~df[cols].isna()).sum(axis=1)
+    n.name = 'n_' + col
+
+    return n
+
+
+def summarize_annotations(df, ignore_annotators=[], labels=['violento', 'cand_objeto', 'racista', 'machista', 'lgbtfobico'], defaults=[0, 1, 0, 0, 0]):
+    """
+    For each annotation label, add a column counting the number of annotations 
+    made and their majority voting result.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Table of annotated tweets. The annotation columns should contain
+        only 0s and 1s. Each annotator gives its classification for a given 
+        label in a separate column.
+    ignore_annotators : list of str
+        IDs of the annotators (e.g. 'A13') to be ignored when summarizing the
+        data.
+    labels : list of str
+        The categorizations given to each tweet. Each category is binary and
+        can be annotated by more than one annotator. All `df` columns 
+        containing a given label in `labels` as a substring are considered 
+        as annotations for the same category, given by different annotators.
+    defaults : list of 0s and 1s.
+        When getting the majority vote for a given category, these are the 
+        values used in case of a tie. The values should be aligned with the 
+        respective categories given in `labels`.
+    
+    Returns
+    -------
+    mod_df : DataFrame
+        The input DataFrame (which is modified in place), with added columns,
+        for each category in `labels`:
+        - The final classification, obtained through majority voting;
+        - The number of annotations made.
+    """
+    
+    # Encontra colunas dos anotadores a serem ignorados:
+    ignore_cols = []
+    for a in ignore_annotators:
+        ignore_cols += find_cols(df, a)
+    
+    # Loop sobre rótulos:
+    for col, d in zip(labels, defaults):
+        # Pega a classificação mais dada pelos anotadores:
+        mode = classification_mode(df.drop(ignore_cols, axis=1), col, d)
+        # Contabiliza número de classificações:
+        n = n_classifications(df.drop(ignore_cols, axis=1), col)        
+        # Add info to DataFrame:
+        df[col + '_final'] = mode
+        df['n_' + col] = n
+        
+    return df
+
+
+def security_checks(df):
+    """
+    Make tests on the annotated tweets in `df` (DataFrame) and print 
+    messages in case of problems found. Returns False if a problem 
+    is found, and True otherwise.
+    """
+    
+    status = True
+    
+    # Os tweets foram anotados de forma completa, sem informações faltando:
+    annotation_counts = df[find_cols(df, 'n_')]
+    same_n_annotations = annotation_counts.eq(annotation_counts.iloc[:, 0], axis=0).all(axis=1)
+    diff_n_annotations = ~same_n_annotations
+    if diff_n_annotations.sum() > 0:
+        status = False
+        print("!! Os seguintes tweets não possuem o mesmo número de anotações em todas as categorias: {}".format(set(diff_n_annotations.loc[diff_n_annotations].index)))
+        
+    return status
+
+
+def load_group_data(filename, usecols=['id'], prefix='amostra_tweets_para_anotacao_'):
+    """
+    Load DataFrame from CSV file and add column with the social 
+    group identified by the filename suffix.
+    
+    Parameters
+    ----------
+    filename : str
+        Path to the CSV file to open.
+    usecols : list of str
+        Columns in the CSV file to load.
+    prefix : str
+        String that appears before the suffix that identifies the 
+        social group.
+        
+    Returns
+    -------
+    df : DataFrame
+        The columns `usecols` in the CSV file, joined with a constant
+        column identifying the social group referenced by the 
+        `filename`.
+    """
+    
+    df = pd.read_csv(filename, usecols=usecols)
+    df['grupo'] = filename.split(prefix)[-1].split('.')[0]
+    
+    return df
+
+
+def count_annotations_made(tweets_annotated_df, annotation_regex=r'_A\d{1,2}$'):
+    """
+    Count the number of annotations made by each annotator.
+    
+    Parameters
+    ----------
+    tweets_annotated_df : DataFrame
+        Tweets (one per row) with all annotations made (certain columns).
+    annotation_regex : str
+        Regular expression used to identify the columns in 
+        `tweets_annotated_df` that contain the annotations.
+    
+    Returns
+    -------
+    n_annotations_df : DataFrame
+        Columns are the labels (questions), index are the annotators.
+        The values are the number of annotations made, which can be
+        0 or 1.
+    """
+    
+    # Encontra colunas com as anotações:
+    annotation_cols  = tweets_annotated_df.columns[tweets_annotated_df.columns.str.contains(annotation_regex)]
+    
+    # Contabiliza as anotações:
+    n_annotations = (~tweets_annotated_df[annotation_cols].isnull()).sum()
+    n_annotations.name = 'n_anotacoes'
+    n_annotations = n_annotations.reset_index()
+
+    # Separa a questão do anotador:
+    categories_df = pd.DataFrame(n_annotations['index'].str.split('_A').tolist(), index=n_annotations.index, columns=['label', 'anotador'])
+    categories_df['anotador'] = 'A' + categories_df['anotador']
+    
+    # Junta a contagem:
+    categories_df = categories_df.join(n_annotations['n_anotacoes'])
+    
+    # Coloca anotadores nas linhas e questões nas colunas:
+    n_annotations_df = categories_df.pivot(index='anotador', columns='label', values='n_anotacoes')
+    
+    return n_annotations_df
+
+
+def normal(x, m, s):
+    """
+    A normal distribution, not normalized (maximum is 1, always).
+    """
+    #n = 1.0 / s / np.sqrt(2 * np.pi)
+    return np.exp(-(x - m)**2 / 2 / s**2)
+    
+def lognormal(x, m, s):
+    """
+    Lognormal distribution.
+    """
+    y = np.where(x <=0, 0, 1.0 / x / s / np.sqrt(2 * np.pi) * np.exp(-(np.log(x) - m)**2 / 2 / s**2))
+    return y
+
+def shifted_lognormal(x, m, s, p):
+    mode = np.exp(m - s**2)
+    y = lognormal(x - p + mode, m, s)
+    return y
+
+def alpha_limiter(x, y, f, e):
+    m = (1 - x) / 2
+    s = f * (1.2 - np.abs(x)) / 2
+    return np.where(s < e, 0, normal(y, m, s))
+
+def hate_score_bias_prior(a, b):
+    amod = alpha_limiter(b, a, 1.0, 0.02)
+    bmod = shifted_lognormal(-b, -0.7, 0.9, -1)
+    return amod * bmod
+
+
+def annotations_to_stats(tweets_df, annotation_col='violento', final_suffix='_final', machine_col='hate_score', bin_size=0.1):
+    """
+    Go from a table of annotated tweets (one per row) to a table of binomial statistics, 
+    one row per bin of the provided score. 
+    
+    Parameters
+    ----------
+    tweets_df : DataFrame
+        Table of tweets and their annotations, along with other information.
+    annotation_col : str
+        Substring that specifies the question that was answered by annotators.
+    final_suffix : str
+        Suffix that identifies, together with `annotation_col`, the colum containing 
+        the tweet annotation {0,1}.
+    machine_col : str
+        Name of the column containing the scores used to bin the tweets.
+    bin_size : float
+        Width of the bin. They cover the range from 0 to 1.
+    
+    Returns
+    -------
+    Table of binomial statistics of the tweets.
+    The output columns are:
+    
+    - Number of tweets annotated as 1, in a binary {0,1} classification;
+    - Number of tweets in the bin;
+    - Fraction of tweets marked as 1;
+    - 05-percentile of the posterior distribution for the success rate;
+    - 95-percentile of the posterior distribution for the success rate;
+    - Average score value in the bin.
+    """
+    
+    # Seleciona linhas com dados anotados:
+    with_data_df = tweets_df.query('n_{} > 0'.format(annotation_col))
+
+    # Bin data by machine score:
+    bin_id = bin_prob(with_data_df[machine_col], bin_size)
+    bin_id.name = machine_col + '_bin'
+
+    # Compute avg. machine score in each bin:
+    machine_mean = with_data_df.groupby(bin_id)[machine_col].mean()
+
+    # Build binomial statistics DataFrame:
+    stats_df = build_binomial_stats_df(with_data_df, bin_id, [annotation_col + final_suffix])
+    stats_df['machine_avg_' + machine_col] = machine_mean
+    
+    return stats_df
+
+
+def sample_fixed_proportion(df, label_col, frac_pos, replace=True, random_state=None):
+    """
+    Resample the positive class (label 1) so its fraction is the requested
+    one, assuming the other class has label 0.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Data to be sampled. It must contain the `label_col` column.
+    label_col : str
+        Name of the column containing the binary labels 0 or 1.
+    frac_pos : float
+        Fraction that the positive instances (label 1) must comprise
+        in the final sample.
+    replace : bool
+        Whether to do sampling with replacement or not
+    random_state : int or None
+        Seed for the pseudo random number generator.
+
+    Returns
+    -------
+    sample_df : DataFrame
+        A table with all negative instances from `df` with a sample of 
+        positive instances appended to its end.
+     """
+    
+    # Separate classes:
+    neg_df = df.loc[df[label_col] == 0]
+    pos_df = df.loc[df[label_col] == 1]
+    
+    # Count the number of instances in each class: 
+    n_neg = len(neg_df)
+    n_pos = int(n_neg * frac_pos / (1 - frac_pos) + 0.5)
+    
+    # Build sample:
+    sample_df = pd.concat([neg_df, pos_df.sample(n_pos, replace=replace, random_state=random_state)])
+    
+    return sample_df
+
+
+def fixed_proportion_scores(df, true_col, prob_col, frac_pos, scorer, threshold=0.5, n_samples=200, replace=True, random_state=None):
+    """
+    Compute a metric score over multiple resampled datasets in which 
+    the fraction of positive instances (in a binary classification)
+    is the given one.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Data to be sampled. It must contain the `true_col` and 
+        `prob_col` columns.
+    true_col : str
+        Name of the column containing the true binary labels 0 or 1.
+    prob_col : str
+        Name of the column containing the probability that each 
+        instance is positive.
+    frac_pos : float
+        Fraction that the positive instances (label 1) must comprise
+        in the final samples used to compute the scores.
+    scorer : callable
+        Scorer like `accuracy_score` with parameters (y_true, y_pred).
+    threshold : float
+        Probability threshold for the values under the `prob_col` 
+        columns above which the instance is considered as positive.
+    n_samples : int
+        Number of resampled datasets (and derived scores) to produce. 
+    replace : bool
+        Whether to do sampling with replacement or not
+    random_state : int or None
+        Seed for the pseudo random number generator.
+
+    Returns
+    -------
+    scores : array
+        Scores computed from the `n_samples` resampled datasets 
+        containing all negative instances from `df` and the 
+        sampled positive instances.
+    """    
+    
+    scores = []
+    seed = random_state
+    
+    for i in range(n_samples):
+        
+        if random_state is not None:
+            seed = random_state + i
+            
+        sample_df = sample_fixed_proportion(df, true_col, frac_pos, replace=replace, random_state=seed)
+        scores.append(scorer(sample_df[true_col], sample_df[prob_col] > threshold))
+    
+    return np.array(scores)
+
+
+def multi_binomial_likelihood(intercept, coef, n_successes, n_trials, x):
+    """
+    Compute the likelihood (probability) of observing a given set of successes
+    in multiple independent binomial experiments where the single trial success
+    rate in each experiment is given by a linear function of an independent 
+    variable.
+    
+    Parameters
+    ----------
+    intercept : float
+        The intercept of the linear relation between the single trial success
+        rate and the independent variable `x`.
+    coef : float
+        The factor that multiplies the independent variable `x` to return the 
+        single trial success rate.
+    n_successes : array, shape (m,)
+        Number of successes in each of the `m` independent binomial experiments.
+    n_trials : array, shape (m,)
+        Number of trials in each of the `m` independent binomial experiments.
+    x : array, shape (m,)
+        Independent variable that specifies the success probability through a 
+        linear function.
+        
+    Returns
+    -------
+    
+    L : float
+        Probability that the given result is observed, assuming all 
+        experiments are independent.
+    """
+    
+    ps = intercept + coef * x 
+    return stats.binom.pmf(n_successes, n_trials, ps).prod()
+
+def get_2d_max(xx, yy, zz):
+    """
+    Return the coordinates of the maximum value of a matrix.
+    
+    Parameters
+    ----------
+    zz : array, shape (n, m)
+        Values where to look for the maximum.
+    xx : array, shape (n, m)
+        X coordinates of the values in `zz`.
+    yy : array, shape (n, m)
+        Y coordinates of the values in `zz`.
+    
+    Returns
+    -------
+    x_max : float
+        Value from `xx` in the same position as the maximum value in `zz`.
+    y_max : float
+        Value from `yy` in the same position as the maximum value in `zz`.
+    """
+    
+    i_max = zz.ravel().argmax()
+    x_max = xx.ravel()[i_max]
+    y_max = yy.ravel()[i_max]
+    
+    return x_max, y_max
+
+def map_multi_binomial_posterior(stats_df, amin, amax, da, bmin, bmax, db, n_success_col='violento_final'):
+    """
+    Map the Posterior probability distrbution for linear coefficients that
+    relate the IA hate score to the fraction of tweets annotated as violent
+    by humans.
+    
+    Parameters
+    ----------
+    stats_df : DataFrame
+        Table with statistical information about the number of tweets 
+        considered violent by humans, in bins of IA hate scores (each
+        bin is a row). The required columns are: 'violento_final' (number of 
+        tweets considered violent), 'trials' (total number of tweets in the
+        bin) and 'machine_avg_hate_score' (average of the hate scores in 
+        the bin).
+    amin : float
+        Minimum value of the intercept in the linear relation between 
+        human and IA evaluation.
+    amax : float
+        Maximum value of the intercept in the linear relation between 
+        human and IA evaluation.
+    da : float
+        Interval between each point in the intercept range.
+    bmin : float
+        Minimum value of the angular coefficient in the linear relation 
+        between human and IA evaluation.
+    bmax : float
+        Maximum value of the angular coefficient in the linear relation 
+        between human and IA evaluation.
+    db : float
+        Interval between each point in the angular coefficient range.
+    
+    Returns
+    -------
+    aa : array, shape (n, m)
+        Values of the intercept in each point of the 2D map of the 
+        posterior.
+    bb : array, shape (n, m)
+        Values of the angular coefficient in each point of the 2D map 
+        of the posterior.
+    Post : array, shape (n, m)
+        Values of the posterior.
+    """
+    
+    # Build grid of coordinates:
+    aa, bb = np.mgrid[amin:amax:da, bmin:bmax:db]
+    
+    # Map prior:
+    P = hate_score_bias_prior(aa, bb)
+    
+    # Map likelihood:
+    with Pool() as pool:
+        L = np.nan_to_num(pool.starmap(multi_binomial_likelihood, zip(aa.ravel(), bb.ravel(), repeat(stats_df[n_success_col]), repeat(stats_df['trials']), repeat(stats_df['machine_avg_hate_score']))))
+    L = L.reshape(aa.shape)
+    
+    # Map posterior:
+    Post = P * L
+    Post = Post / (Post.sum() * da * db)
+    
+    return aa, bb, Post
+
+def find_pdf_levels(pdf, dx, dy, conf_intervals=[0.68, 0.95]):
+    """
+    Find the values of a 2D PDF that correspond to the given confidence intervals.
+    
+    Parameters
+    ----------
+    pdf : 2D array
+        Map of PDF values on a 2D equally-spaced grid.
+    dx : float
+        Interval between two grid points in the one direction.
+    dy : float
+        Interval between two grid points in the other direction.    
+    conf_intervals : list of floats
+        Confidence intervals, from 0 to 1, to look for.
+        
+    Returns
+    -------
+    levels : array of floats
+        PDF values that correspond to the given confidence intervals.
+    """
+    
+    # Sort intervals:
+    conf_intervals = sorted(conf_intervals)[::-1]
+    
+    # Get correspondence between levels and confidence intervals:
+    z_values = np.unique(pdf.ravel())[::-1]
+    z_prob = np.array([pdf[pdf >= z].sum() * dx * dy for z in z_values])
+    
+    # Get intervals for the requested levels:
+    levels = np.array([z_values[np.argmin((z_prob - p)**2)] for p in conf_intervals])
+    
+    return levels
+
+def plot_score_correspondence(stats_df, intercept, coef, label, color, annotation_col='violento', final_suffix='_final', machine_col='hate_score'):
+    """
+    Create a scatter plot, with error bars, of the estimated fraction of successes
+    in a series of binomial experiments, along with a linear fit line.
+    
+    Parameters
+    ----------
+    stats_df : DataFrame
+        Table with binomial statistics per bin (data point).
+    intercept : float
+        Intercept of the linear fit.
+    coef : float
+        Angular coefficient of the linear fit.
+    label : str
+        What to call the data points.
+    color : str
+        Color used for the data points and fit line.
+    annotation_col : str
+        Substring present in the `stats_df` columns, indicating the question
+        answered by the annotators.
+    final_suffix : str
+        Suffix added to `annotation_col`, present in the `stats_df` columns, 
+        indicating the aggregation or annotator used when computing the stats.
+    machine_col : str
+        Suffix indicating the score used to bin the data.
+    """
+    
+    pl.plot([0,100], [intercept * 100, intercept * 100 + coef * 100], linewidth=1, color=color)
+    
+    pl.errorbar(stats_df['machine_avg_' + machine_col] * 100, stats_df['freq_' + annotation_col + final_suffix] * 100, 
+                yerr=[(stats_df['freq_' + annotation_col + final_suffix] - stats_df['min_' + annotation_col + final_suffix]).clip(lower=0) * 100,
+                      (stats_df['max_' + annotation_col + final_suffix] - stats_df['freq_' + annotation_col + final_suffix]).clip(lower=0) * 100],
+                marker='o', linestyle='none', alpha=0.5, color=color, label=label)
+
+def plot_tweets_correspondence(tweets_df, label, color, annotation_col='violento', final_suffix='_final'):
+    """
+    Creates two subplots:
+    - A scatter plot + linear fit of the fraction of annotated tweets per bin of 
+      IA hate score;
+    - A 2D confidence contour plot for the parameters of the linear fit.
+    
+    Parameters
+    ----------
+    tweets_df : DataFrame
+        Table of tweets and their annotations, along with other information.
+    label : str
+        What to call the data points.
+    color : str
+        Color used for the data points, contours and fit line.
+    annotation_col : str
+        Substring present in the `stats_df` columns, indicating the question
+        answered by the annotators.
+    final_suffix : str
+        Suffix added to `annotation_col`, present in the `stats_df` columns, 
+        indicating the aggregation or annotator used when computing the stats.    
+    """
+    
+    # Hard-coded:
+    amin = -0.05
+    amax =  0.6
+    da   =  0.002
+    bmin =  0.1
+    bmax =  1.0
+    db   =  0.002
+
+    # Count annotations:
+    stats_df = annotations_to_stats(tweets_df, annotation_col=annotation_col, final_suffix=final_suffix)
+    
+    # Compute the posterior for the linear relation coefficients:
+    aa, bb, Post = map_multi_binomial_posterior(stats_df, amin, amax, da, bmin, bmax, db, n_success_col= annotation_col + final_suffix)
+    a_max, b_max = get_2d_max(aa, bb, Post)
+
+    pl.subplot(1,2,1)
+    plot_score_correspondence(stats_df, a_max, b_max, label, color, annotation_col=annotation_col, final_suffix=final_suffix)
+    pl.subplot(1,2,2)
+    pl.contour(bb, aa, Post, colors=color, alpha=0.5, levels=find_pdf_levels(Post, da, db))
