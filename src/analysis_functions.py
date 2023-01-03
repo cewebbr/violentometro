@@ -1375,6 +1375,7 @@ def build_sampling_weight_df(tweets_df, dim1='batch_user', dim2='prob_bin', dim2
     return weight_df
 
 
+def sample_tweets_in_group(tweets_df, ids_df, selector, min_mentions, prob_bin, cand_exp, n_samples, random_state, verbose=True):
     """
     Sample tweets targeting popular candidates within a specified group, trying to 
     return similar frequencies for rates of directed violence and for different 
