@@ -6,3 +6,5 @@ twitter_ids_deputados_2022_v04.csv filter=lfs diff=lfs merge=lfs -text
 twitter+insta+lagom_ids_deputados_2022.csv filter=lfs diff=lfs merge=lfs -text
 *.joblib filter=lfs diff=lfs merge=lfs -text
 modelos/*.csv filter=lfs diff=lfs merge=lfs -text
+dados/processados/redes_candidatos_2020.csv filter=lfs diff=lfs merge=lfs -text
+dados/processados/redes_candidatos_2022.csv filter=lfs diff=lfs merge=lfs -text
