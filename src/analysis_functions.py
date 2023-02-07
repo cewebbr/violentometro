@@ -30,13 +30,13 @@ import scipy.stats as stats
 from itertools import repeat
 from multiprocessing import Pool
 
-import xavy.dataframes as xd
-import xavy.tse as tse
-import xavy.stats as xx
-import xavy.utils as xu
-import xavy.plots as xp
-import xavy.drive as dr
-from xavy.text import text2tag
+from .xavy import dataframes as xd
+from .xavy import tse as tse
+from .xavy import stats as xx
+from .xavy import utils as xu
+from .xavy import plots as xp
+from .xavy import drive as dr
+from .xavy.text import text2tag
 
 
 def build_bem_features(df, index_cols):

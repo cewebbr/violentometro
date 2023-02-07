@@ -6,3 +6,4 @@ tensorflow==2.9.1
 transformers==4.21.0
 scikit-learn==1.1.1
 matplotlib==3.5.3
+gspread==5.7.2
