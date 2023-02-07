@@ -33,7 +33,6 @@ modelos/bertimbau-hatespeech-v02
 # Lixo meu
 trash/
 dados/processados/bkp/
-modelos/rf_instagram2twitter_validator_v01/
 
 # Lixo meu protegido pela LGPD
 pretest_tweets/
