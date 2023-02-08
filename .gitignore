@@ -15,6 +15,10 @@ analises/protopyting_capture_tweet_replies.ipynb
 analises/teste_modelo_bert_treinado.ipynb
 analises/plots
 
+# Dados grandes que não entram no repo
+dados/brutos/tse
+dados/limpos/tse
+
 # Restritos pela LGPD
 tweets/data
 tweets/temp
