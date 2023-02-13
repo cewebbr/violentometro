@@ -1544,6 +1544,47 @@ def print_cv_scores(estimator, X, y, scorers, cv=5):
         print('{}: {:.4f} +/- {:.4f}'.format(scorer, mean, dev_mean))
 
 
+def geomean_hit_rate(y_true, y_pred, neg_label=0, pos_label=1):
+    """
+    Compute the geometric mean of the positive and negative hit rates 
+    in a binary classification.
+    
+    Parameters
+    ----------
+    y_true : 1d array-like, or label indicator array
+        Ground truth (correct) labels.
+    y_pred : 1d array-like, or label indicator array
+        Predicted labels, as returned by a classifier.
+    neg_label : int
+        Label for the negative instances.
+    pos_label : int 
+        Label for the positive instances.
+        
+    Returns
+    -------
+    ghr : float
+        The geometric mean of the hit rates.
+    """
+    
+    # Security checks:
+    assert np.isclose(y_true, y_true.astype(int)).all(), 'Provided `y_true` should only have integer values.'
+    assert np.isclose(y_pred, y_pred.astype(int)).all(), 'Provided `y_pred` should only have integer values.'
+    assert set(y_true.astype(int)) - {neg_label, pos_label} == set(), '`y_true` should contain only {} and {}, according to `neg_label` and `pos_label`.'.format(neg_label, pos_label)
+    assert set(y_pred.astype(int)) - {neg_label, pos_label} == set(), '`y_pred` should contain only {} and {}, according to `neg_label` and `pos_label`.'.format(neg_label, pos_label)
+    
+    # Compute true positive and negative rates:
+    tp = (y_pred[y_true == pos_label] == pos_label).sum()
+    tn = (y_pred[y_true == neg_label] == neg_label).sum()
+    # Count true positives and negatives:
+    Np = (y_true == pos_label).sum()
+    Nn = (y_true == neg_label).sum()
+    
+    # Compute the geometric mean of the hit rates:
+    ghr = np.sqrt(tp * tn / Np / Nn)
+    
+    return ghr
+
+
 #####################################
 ### Plots and tables for analysis ###
 #####################################
@@ -1949,8 +1990,6 @@ def plot_scores_vs_par(slice_grid, par, score_name, logscale=True, random=False)
     pl.gca().set_xticklabels(labels)
     
     
-
-    
 def plot_pars_scores(grid, logscale=True):
     """
     Given a GridSearchCV object `grid` already fitted to a training data,
@@ -2159,4 +2198,5 @@ def save_model(directory, tested_model, production_model, train_df, test_df, met
     score_board = {'date': current_date, 'metric': metric, 'train_score': train_score, 'test_score': test_score}
     with open(directory + 'scores_and_info.json', 'w') as f:
         json.dump(score_board, f, indent=0)
+
 
