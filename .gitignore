@@ -15,6 +15,11 @@ analises/protopyting_capture_tweet_replies.ipynb
 analises/teste_modelo_bert_treinado.ipynb
 analises/plots/*
 !analises/plots/.gitignore
+resultados/*
+!resultados/plots
+resultados/plots/*
+resultados/plots/.gitignore
+imagens
 
 # Dados grandes que não entram no repo
 dados/brutos/tse
