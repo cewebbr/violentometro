@@ -217,7 +217,7 @@ def load_tweets_df(data_dir, utc2bsb=True):
           are parsed to datetime in Brasilia time zone.
     """
     # Load tweets:
-    tweets_df = load_concat_csv('../tweets/scored/')
+    tweets_df = load_concat_csv(data_dir)
 
     # Parse dates:
     tweets_df['created_at'] = pd.to_datetime(tweets_df['created_at'], utc=True)
