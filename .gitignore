@@ -21,9 +21,14 @@ resultados/plots/*
 resultados/plots/.gitignore
 imagens
 
+# Segredos
+src/data_encryption_key.txt
+
 # Dados grandes que não entram no repo
 dados/brutos/tse
 dados/limpos/tse
+tweets/encrypted
+tweets/encrypted-scored-tweets.zip
 
 # Restritos pela LGPD
 tweets/data
@@ -36,6 +41,7 @@ dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData+IDsCeweb.csv
 dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData.csv
 dados/brutos/aux/tabela_planilhas_tweets_anotados.csv
 dados/brutos/eletweet22
+
 
 # Não utilizados
 modelos/bertimbau-hatespeech-v02
