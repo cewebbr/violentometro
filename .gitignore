@@ -37,6 +37,7 @@ tweets/logs/*
 !tweets/logs/twitter_id_pool_sources.log
 tweets/scored
 dados/processados/tweets_classificados_por_objeto*.csv
+!dados/processados/tweets_classificados_por_objeto*_encrypted.csv
 dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData+IDsCeweb.csv
 dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData.csv
 dados/processados/amostra_tweets_escolhidos_para_anotacao.csv
