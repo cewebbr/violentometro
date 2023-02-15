@@ -39,9 +39,9 @@ tweets/scored
 dados/processados/tweets_classificados_por_objeto*.csv
 dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData+IDsCeweb.csv
 dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData.csv
+dados/processados/amostra_tweets_escolhidos_para_anotacao.csv
 dados/brutos/aux/tabela_planilhas_tweets_anotados.csv
 dados/brutos/eletweet22
-
 
 # Não utilizados
 modelos/bertimbau-hatespeech-v02
