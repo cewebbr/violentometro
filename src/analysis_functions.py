@@ -1502,7 +1502,7 @@ def export_sample_for_annotation(tweet_sample_df, filename, specificity, verbose
         print('Data saved to {}'.format(outfile))
         
 
-def load_annotations_from_local_or_drive(row, force_drive=False, save_data=True):
+def load_annotations_from_local_or_drive(row, path_template, force_drive=False, save_data=True):
     """
     Load tweet annotation table from a local file or from Google Sheets.
     
@@ -1511,6 +1511,10 @@ def load_annotations_from_local_or_drive(row, force_drive=False, save_data=True)
     row : Series
         A list of informations about the annotation data to load, with keys:
         'Grupo', 'Anotador', 'Link'.
+    path_template : str
+        A string representing the path to the local file, with '{}' placeholders
+        for the social group and the annotator, e.g.:
+        '../dados/brutos/eletweet22/tweets_anotados_{}_{}.csv'
     force_drive : bool
         Whether to download data from Google Sheets even if the local file exists.    
     save_data : bool
@@ -1518,7 +1522,7 @@ def load_annotations_from_local_or_drive(row, force_drive=False, save_data=True)
     """
     
     # Define nome de arquivo onde salvar:
-    filename = '../dados/brutos/eletweet22/tweets_anotados_{}_{}.csv'.format(text2tag(row['Grupo']), row['Anotador'])
+    filename = path_template.format(text2tag(row['Grupo']), row['Anotador'])
     annotation_df = dr.load_data_from_local_or_drive(row['Link'], filename, force_drive=force_drive, save_data=False)
     
     #annotation_df['id'] = annotation_df['id'].astype(int)
@@ -1567,7 +1571,7 @@ def prepare_one_group_annotation(df, annotator):
     return df
 
 
-def etl_one_group_annotation(row, force_drive=False, save_data=True):
+def etl_one_group_annotation(row, path_template, force_drive=False, save_data=True):
     """
     Load and clean tweet annotations given the metadata provided.
     
@@ -1576,6 +1580,10 @@ def etl_one_group_annotation(row, force_drive=False, save_data=True):
     row : Series
         Metadata about the tweet annotations to load and clean. 
         Required fields are: 'Grupo', 'Anotador' e 'Link'.
+    path_template : str
+        A string representing the path to the local file, with '{}' placeholders
+        for the social group and the annotator, e.g.:
+        '../dados/brutos/eletweet22/tweets_anotados_{}_{}.csv'
     force_drive : bool
         Whether to download data from Google Sheets even if the local file exists.    
     save_data : bool
@@ -1589,14 +1597,14 @@ def etl_one_group_annotation(row, force_drive=False, save_data=True):
     """
     
     # Load raw data from Sheets or from local file:
-    df = load_annotations_from_local_or_drive(row, force_drive, save_data)
+    df = load_annotations_from_local_or_drive(row, path_template, force_drive, save_data)
     # Prepare data:
     df = prepare_one_group_annotation(df, row['Anotador'])
     
     return df
 
 
-def etl_group_annotations(dir_df, group, force_drive=False, save_data=True):
+def etl_group_annotations(dir_df, group, path_template, force_drive=False, save_data=True):
     """
     Load and join all annotations for the same tweets.
     
@@ -1607,6 +1615,10 @@ def etl_group_annotations(dir_df, group, force_drive=False, save_data=True):
         'Grupo', 'Anotador', 'id', 'Link', 'text', 'tweet_url'.
     group : str
         Nome do grupo para selecionar.
+    path_template : str
+        A string representing the path to the local file, with '{}' placeholders
+        for the social group and the annotator, e.g.:
+        '../dados/brutos/eletweet22/tweets_anotados_{}_{}.csv'
     force_drive : bool
         Whether to download data from Google Sheets even if the local file exists.    
     save_data : bool
@@ -1627,7 +1639,7 @@ def etl_group_annotations(dir_df, group, force_drive=False, save_data=True):
     # Pega o primeiro conjunto de anotações:
     row = group_sheets_df.iloc[0]
     grupo = row['Grupo']
-    joined_df = etl_one_group_annotation(row, force_drive=force_drive, save_data=save_data)
+    joined_df = etl_one_group_annotation(row, path_template, force_drive=force_drive, save_data=save_data)
 
     # Loop sobre os demais conjuntos de anotações:
     for i in range(1, len(group_sheets_df)):
@@ -1635,7 +1647,7 @@ def etl_group_annotations(dir_df, group, force_drive=False, save_data=True):
         # Pega o primeiro conjunto de anotações:
         row = group_sheets_df.iloc[i]
         assert row['Grupo'] == grupo, 'A lista de sheets fornecida não correpondem a um único grupo social.'
-        extra_df = etl_one_group_annotation(row, force_drive=force_drive, save_data=save_data)
+        extra_df = etl_one_group_annotation(row, path_template, force_drive=force_drive, save_data=save_data)
 
         # Verifica que os dados tratam dos mesmos tweet IDs:}
         assert set(joined_df.index) == set(extra_df.index), 'O conjunto de IDs dos tweets do anotador {} é diferente dos do anotador anterior'.format(row['Anotador'])
