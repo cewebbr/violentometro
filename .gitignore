@@ -43,6 +43,10 @@ dados/processados/perfis_twitter_deputados_reeleicao2022_LagomData.csv
 dados/processados/amostra_tweets_escolhidos_para_anotacao.csv
 dados/brutos/aux/tabela_planilhas_tweets_anotados.csv
 dados/brutos/eletweet22
+dados/processados/amostra_tweets_para_anotacao_controle.csv
+dados/processados/amostra_tweets_para_anotacao_lgbts.csv
+dados/processados/amostra_tweets_para_anotacao_mulheres.csv
+dados/processados/amostra_tweets_para_anotacao_pessoas_negras.csv
 
 # Não utilizados
 modelos/bertimbau-hatespeech-v02
