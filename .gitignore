@@ -48,6 +48,7 @@ dados/processados/amostra_tweets_para_anotacao_controle.csv
 dados/processados/amostra_tweets_para_anotacao_lgbts.csv
 dados/processados/amostra_tweets_para_anotacao_mulheres.csv
 dados/processados/amostra_tweets_para_anotacao_pessoas_negras.csv
+dados/processados/eletweet22_tweets-anotados.csv
 
 # Não utilizados
 modelos/bertimbau-hatespeech-v02
