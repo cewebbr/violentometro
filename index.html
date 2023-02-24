@@ -165,47 +165,28 @@ As an application of this idea, this webpage presents daily measurements of the 
 	<section id="metodologia" class="mt-5">
 		<div class="container">
 			<div class="container_parceria">
-				<h3 class="title_parceria">Methodology</h3>
-				<p class="desc_box_number">Os perfis no Twitter das candidatas e candidatos a deputado estadual, distrital e federal foram
-				  coletados dos <a href="https://dadosabertos.tse.jus.br/dataset/candidatos-2022" title="Ir para página - Dados do TSE" target="_blank">dados abertos do TSE</a>,
-				  de acordo com o informado pelos partidos durante o registro
-				  das candidaturas. Essa lista foi complementada com perfis dos atuais deputados e deputadas federais concorrendo à reeleição,
-				  se não informados ao TSE. Dentre as 27.976 candidaturas de 2022, foram encontrados 1.723 perfis de candidaturas a deputado
-				  federal, 1.648 de deputado estadual e 103 de deputado distrital com contas no Twitter, totalizando 3.474 perfis na rede
-				  social. Desses perfis, 28% são de candidaturas femininas.
-				</p>
-				<p class="desc_box_number">A cada três horas, um sistema automatizado 
-				  seleciona um terço dos 3.474 perfis de maneira aleatória e captura as menções feitas a eles dentro das últimas
-				  três horas, de forma que todas as 24 horas de todos os dias são monitoradas de maneira amostral. A maioria das
-				  menções coletadas são respostas a tweets das candidaturas.
-				</p>
-				<p class="desc_box_number">Para termos certeza de que as menções são direcionadas às candidaturas em questão,
-				selecionamos apenas as respostas diretas aos tweets das candidaturas ou tweets que não mencionem outro perfil
-				além do da candidatura. Também ignoramos tweets sem nenhum texto. Os tweets selecionados são classificados por uma
-				  <a href="https://github.com/cewebbr/violentometro" title="Ir para página - Ferramenta de IA" target="_blank">inteligência artificial</a> que calcula, a partir do texto do tweet,
-				  a probabilidade de cada tweet conter discurso de ódio.
-				</p>
-				<p class="desc_box_number">
-				A inteligência artificial utilizada é uma rede neural do tipo “transformer”, de arquitetura BERT, pré-treinada por
-				<a href="https://github.com/neuralmind-ai/portuguese-bert" title="Ir para página - BERTimbau" target="_blank">Souza et al. (2020)</a>
-				para adivinhar sentenças e palavras ocultadas no meio de 3,53 milhões de documentos obtidos da web brasileira por
-				<a href="https://www.researchgate.net/publication/326303825_The_brWaC_Corpus_A_New_Open_Resource_for_Brazilian_Portuguese" title="Ir para página - Corpus brWaC" target="_blank">Wagner et al. (2018)</a>.
-				Ela foi ajustada para a tarefa específica de identificação de discursos de ódio a partir de 926 exemplos e 4.713
-				contra-exemplos desses discursos disponibilizados pelos trabalhos de
-				<a href="https://github.com/rogersdepelle/OffComBR" title="Ir para página - Github de Pelle" target="_blank">Pelle & Moreira (2017)</a> e
-				<a href="https://github.com/paulafortuna/Portuguese-Hate-Speech-Dataset" title="Ir para página - Github de Fortuna" target="_blank">Fortuna et al. (2019)</a>.
-				</p>
-				<p class="desc_box_number">
-				  Para calcular o número de ataques diários direcionados às candidaturas femininas com perfis identificados
-				  no Twitter, selecionamos apenas as menções a esses perfis. O número de ataques diários é estimado somando
-				  as probabilidades calculadas pela IA e reescalando esse valor, obtido das amostras, para todas as 975
-				  candidaturas femininas com presença identificada no Twitter. 
-				</p>
-				<p class="desc_box_number">
-				  Após o término das eleições, os dados coletados serão analisados em maior detalhe e profundidade,
-				  e os resultados serão apresentados em um relatório. 
-				</p>
-				<p class="desc_box_number"> </p>
+			  <h3 class="title_parceria">Methodology</h3>
+
+			  <p class="desc_box_number">Every three hours, an automated system selects at random a third of the 975 candidates' profiles provided as input and
+			    captures the mentions and replies made to them within the last three hours, so that the mentions to the set of input profiles are monitored continuously,
+			    in a statistical sense. Most of the mentions collected are responses to the candidates' tweets.
+			  </p>
+			  <p class="desc_box_number">To make sure that the mentions are directed to the candidates in question, we only select direct
+			    responses to the candidates' tweets or tweets that do not mention any profile other than the candidate's. We also ignore
+			    tweets with no text. The selected tweets are classified by the AI that calculates, from the text of the tweet, the probability
+			    that each tweet contains hate speech or offensive comments.</p>
+			  <p class="desc_box_number">The AI used in this project is a neural network of the “transformer” type, with BERT architecture,
+			    pre-trained by
+			    <a href="https://github.com/neuralmind-ai/portuguese-bert" title="Ir para página - BERTimbau" target="_blank">Souza et al. (2020)</a>
+			    to guess following sentences and hidden words among 3.53 million documents retrieved from the Brazilian Web by
+			    <a href="https://www.researchgate.net/publication/326303825_The_brWaC_Corpus_A_New_Open_Resource_for_Brazilian_Portuguese" title="Ir para página - Corpus brWaC" target="_blank">
+			      Wagner et al. (2018)</a>.
+			    This model was fine-tuned for the specific task of identifying violent texts from 926 examples and 4,713 counterexamples provided by the works of
+			    <a href="https://github.com/rogersdepelle/OffComBR" title="Ir para página - Github de Pelle" target="_blank">Pelle & Moreira (2017)</a>
+			    and <a href="https://github.com/paulafortuna/Portuguese-Hate-Speech-Dataset" title="Ir para página - Github de Fortuna" target="_blank">Fortuna et al. (2019)</a>.
+			  <p class="desc_box_number">The number of daily attacks directed to the candidates is estimated by adding the
+			    probabilities calculated by the AI and rescaling this value, obtained from the statistical samples, for all
+			    975 candidates' profiles provided as input.</p>
 			</div>
 
 		</div>
