@@ -1,0 +1,32 @@
+html{
+    overflow-x: hidden;
+}
+body{
+    background-image: url('/assets/img/bg/bg-body.png');
+    overflow-x: hidden;
+}
+
+.title_site{
+    font-family: "Barrio", cursive;
+    text-align: center;
+    padding: 30px 0 30px 0;
+    font-size: 120px;
+    color: #5f6366;
+
+}
+
+.content_home{
+	font-family: "Montserrat", sans-serif;
+    color: #5f6366;
+    font-size: 29px;
+    margin-bottom: 4rem;
+    letter-spacing: 1px;
+}
+
+.navbar{
+    background: #fff;
+}
+
+.img-parceria{
+    width: 120px;
+}

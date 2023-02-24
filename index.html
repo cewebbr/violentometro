@@ -1,0 +1,387 @@
+<!-- 	HEADER-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <title>Violentômetro - Monitoramento de violência política às mulheres</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords"   content="Violentômetro, eleições, Brasil" />
+    <meta name="title" content="Violentômetro - Monitoramento de violência política às mulheres">
+    <meta name="author" content="Instituto Vamos Juntas">
+    <meta name="description" content="Este projeto monitora postagens na plataforma Twitter direcionadas a mulheres candidatas ao Legislativo para identificar discursos violentos.">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- FACEBOOK -->  
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://institutovamosjuntas.org/">
+    <meta property="og:site_name" content="Violentômetro" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Violentômetro - Monitoramento de violência política às mulheres" />
+    <meta property="og:description" content="Este projeto monitora postagens na plataforma Twitter direcionadas a mulheres candidatas ao Legislativo para identificar discursos violentos." />
+    <meta property="og:image" content="#" />
+    <!-- / FACEBOOK -->
+
+    <!-- TWITTER -->  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@lorem">
+    <meta name="twitter:creator" content="@lorem">
+    <meta name="twitter:description" content="Este projeto monitora postagens na plataforma Twitter direcionadas a mulheres candidatas ao Legislativo para identificar discursos violentos.">
+    <meta name="twitter:image:src" content="#">
+    <meta property="twitter:title" content="Violentômetro - Monitoramento de violência política às mulheres" />
+    <!-- / TWITTER -->  
+
+
+    <!-- STYLE -->
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fonts.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.css">
+    <link rel="stylesheet" href="assets/css/theme.css?v=1.0">
+
+    <link href="assets/fonts/Barrio/css2.css?family=Barrio&display=swap"  rel="stylesheet">
+    <link href="assets/fonts/Barrio/cssMontserrat.css?family=Montserrat" rel="stylesheet">
+    <!-- /STYLE -->
+
+    <!-- JS -->
+    <script src="assets/js/jquery-3.4.1.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/main.js"></script>
+    <!-- JS -->
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <!-- acessibilidade - skip link -->
+        <a href="#conteudo" class="sr-only" title="Ir direto para o conteúdo">Ir para o conteúdo</a>
+        <!-- / acessibilidade - skip link -->
+
+
+
+                    <!-- navbar -->
+                    <nav id="navbar_main" class="mobile-offcanvas navbar navbar-expand-lg navbar-light sticky">
+
+                        <!-- fechar menu mobile -->
+                        <div class="offcanvas-header">
+                            <button class="btn btn-close float-right">
+                                <span class="fas fa-times fa-lg" aria-hidden="true">
+                                    <span class="sr-only">Fechar</span>
+                                </span>
+                            </button>
+                        </div>
+                        <!-- fechar menu mobile -->
+
+                        <div class="container-fluid">
+
+
+
+                            <!-- itens menu -->
+                            <ul class="navbar-nav ml-auto align-items-center">
+
+                                <li class="nav-item"><a href="#sobre" class="page-scroll nav-link">Sobre</a></li>
+
+                                <li class="nav-item"><a href="#graficos" class="page-scroll nav-link">Gráficos</a></li>
+
+				<li class="nav-item"><a href="#metodologia" class="page-scroll nav-link">Metodologia</a></li>
+				
+                            </ul>
+                            <!-- / itens menu -->
+                        </div>
+
+                    </nav>
+                    <!-- / navbar -->
+                </header>
+                <!-- / HEADER -->
+<!-- HEADER -->
+
+<!-- CONTEÚDO -->
+<div class="col-12 p-0">
+
+	<!-- 	BANNER-->
+	<div class="content_about" id="conteudo">
+		<!-- IMG HEADER -->
+		<img src="assets/img/bg/header_violentometro.jpg" alt="Banner do projeto. Imagem que mostra o olhar de uma mulher.">
+		<!-- IMG HEADER -->
+
+		<div class="container" id="sobre">
+			<h1 class="title_site">VIOLENTÔMETRO</h1>
+			<p class="content_home">
+O Violentômetro é um projeto experimental que faz uso de inteligência artificial para identificar discursos de ódio na rede. Uma primeira versão desse modelo, treinado com exemplos e contra-exemplos de comentários agressivos classificados por especialistas e publicados em trabalhos acadêmicos, foi aplicado para identificar e contabilizar postagens violentas direcionadas a candidatas a deputada estadual e federal nas eleições de 2022. Essas postagens são coletadas do Twitter em tempo real desde o início da campanha eleitoral.
+</p>
+
+<p class="content_home">
+Os números deste projeto não representam o universo de usuários nem a quantidade de discurso de ódio em toda a rede social. O resultado é uma amostra específica durante o período eleitoral de 2022.
+</p>
+
+		</div>
+	</div>	<!-- BANNER -->
+
+	<!-- 	GRAFICO NÚMEROS-->
+	
+<section id="graficos">
+	<div class="container">
+
+		<!-- NÚMEROS -->
+		<div class="grafic_number">
+			<h2 class="sub_title_site">Ataques desde o início da campanha</h2>
+
+			<div class="numbers">
+				<div class="row">
+
+					<div class="col-12 col-lg-4 col-md-4 col-sm-12 pr-0">
+						<div class="box_number_milhares">
+							<span id='total5'></span>
+							<span id='total4'></span>
+							<span id='total3'></span>
+							<p class="desc_box_number">milhares</p>
+						</div>
+					</div>
+
+					<div class="col-12 col-lg-4 col-md-4 col-sm-12 pl-lg-0">
+						<div class="box_number_centenas">
+							<span id='total2'></span>
+							<span id='total1'></span>
+							<span id='total0'></span>
+							<p class="desc_box_number">centenas</p>
+						</div>
+					</div>
+				</div>
+			</div>	
+
+			<h2 class="sub_title_site">Ataques realizados ontem</h2>
+
+			<div class="numbers">
+				<div class="row">
+
+					<div class="col-12 col-lg-4 col-md-4 col-sm-12 pr-0">
+						<div class="box_number_milhares">
+							<span id='yesterday5'>0</span>
+							<span id='yesterday4'>0</span>
+							<span id='yesterday3'>0</span>
+							<p class="desc_box_number">milhares</p>
+						</div>
+					</div>
+
+					<div class="col-12 col-lg-4 col-md-4 col-sm-12 pl-lg-0">
+						<div class="box_number_centenas">
+							<span id='yesterday2'>0</span>
+							<span id='yesterday1'>0</span>
+							<span id='yesterday0'>0</span>
+							<p class="desc_box_number">centenas</p>
+						</div>
+					</div>
+				</div>
+
+
+				<!-- DATA DOS DADOS -->
+				<div class="col-12 p-0">
+					<h3 class="desc_box_number font-300">Última atualização realizada no dia <span id='datadate'>19/09/2022</span> às <span id='datatime'>04:12:44</span>.</h3>
+				</div>
+				<!-- DATA DOS DADOS -->
+			</div>
+
+		</div>
+		<!-- NÚMEROS -->
+
+	</div>
+</section>
+	<!-- GRAFICO NÚMEROS -->
+
+	<!-- 	GRAFICO PIZZA PILHAS -->
+	
+	<!-- GRAFICOS PILHA PIZZA -->
+	<section id="graficos-pilhas">
+		<div class="graficos mt-5">
+			<img src="assets/img/bg/bg-graficos-pilhas.png" class="bg_container_graficos" alt="Gráfico - lorem" aria-hidden="true" role="presentation">
+			<div class="container">
+				<h2 class="sub_title_site">Interações e ataques dia a dia</h2>
+
+				<div class="graficos_pilhas">
+					<div class="row">
+						<div class="col">
+							<img src="assets/img/graficos/tweets_agressivos_por_dia_feminino.png" class="img-fluid" alt="Série temporal do número de ataques por dia, e a fração do total de tweets que eles representam.">
+							<div class="col-12 col-lg-6 col-md-6 col-sm-12">
+								<p class="desc_box_number">
+								O gráfico acima mostra, para cada dia, do começo da campanha eleitoral até o dia da eleição,
+								  o número total de tweets direcionados às candidatas (painel de cima), o número de tweets com
+								  discursos violentos direcionados às candidatas (painel do meio) e a porcentagem dos tweets
+								  que continham alguma forma de violência (painel de baixo). Uma tabela com os dados do gráfico pode
+								  ser obtida <a href="assets/data/tweets_agressivos_por_dia_feminino.csv" title="Arquivo CSV com os dados do gráfico">aqui</a>.
+								  </p>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+	<!-- GRAFICOS PILHA PIZZA -->
+	<!-- GRAFICO PIZZA PILHAS  -->
+
+	<!-- 	GRAFICO COMPARTILHAMENTO -->
+	
+	<!-- COMPARTILHAMENTO -->
+	<section class="share">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<img src="assets/img/bg/share.png" class="icone_compartilhamento" alt="Ícone para compartilhar a ferramenta com mais pessoas">
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<h3 class="title_share">Compartilhe a ferramenta com mais pessoas!</h3>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<div class="container_share">
+						<p>
+							<span class="icone_share">
+								<i class="fab fa-twitter" aria-hidden="true"></i>
+							</span>
+							<span class="desc_share">
+								<a href="https://twitter.com/intent/tweet?text=O%20projeto%20Violentômetro%20está%20monitorando%20a%20violência%20contra%20candidatas%20no%20Twitter:%20https://vamosjuntasorg.github.io/violentometro" target="_blank">Compartilhe no Twitter</a>
+							</span>
+						</p>
+						<p>
+							<span class="icone_share">
+								<i class="fab fa-facebook-square" aria-hidden="true"></i>
+							</span>
+							<span class="desc_share">
+								<a href="https://www.facebook.com/sharer/sharer.php?u=https://vamosjuntasorg.github.io/violentometro" target="_blank">Compartilhe no Facebook</a>
+							</span>
+						</p>
+
+						<!--<p>
+							<span class="icone_share">
+								<i class="fab fa-instagram" aria-hidden="true"></i>
+							</span>
+							<span class="desc_share">
+								<a href="#" target="_blank">Compartilhe no Instagram</a>
+							</span>
+						</p>-->
+						<p>
+							<span class="icone_share">
+								<i class="fa fa-envelope" aria-hidden="true"></i>
+							</span>
+							<span class="desc_share">
+								<a href="mailto:?subject=Violentômetro,%20um%20projeto%20de%20monitoramento%20de%20violência%20política%20na%20web&body=Oi,%20tudo%20bem?%0A%0AFiquei%20sabendo%20desse%20projeto%20e%20achei%20que%20poderia%20interessar%20a%20você:%0Ahttps://vamosjuntasorg.github.io/violentometro" target="_blank">Compartilhe por e-mail</a>
+							</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- COMPARTILHAMENTO -->	<!-- GRAFICO COMPARTILHAMENTO  -->
+
+	<!-- 	METODOLOGIA -->
+		<!-- METODOLOGIA -->
+	<section id="metodologia" class="mt-5">
+		<div class="container">
+			<div class="container_parceria">
+				<h3 class="title_parceria">Metodologia</h3>
+				<p class="desc_box_number">Os perfis no Twitter das candidatas e candidatos a deputado estadual, distrital e federal foram
+				  coletados dos <a href="https://dadosabertos.tse.jus.br/dataset/candidatos-2022" title="Ir para página - Dados do TSE" target="_blank">dados abertos do TSE</a>,
+				  de acordo com o informado pelos partidos durante o registro
+				  das candidaturas. Essa lista foi complementada com perfis dos atuais deputados e deputadas federais concorrendo à reeleição,
+				  se não informados ao TSE. Dentre as 27.976 candidaturas de 2022, foram encontrados 1.723 perfis de candidaturas a deputado
+				  federal, 1.648 de deputado estadual e 103 de deputado distrital com contas no Twitter, totalizando 3.474 perfis na rede
+				  social. Desses perfis, 28% são de candidaturas femininas.
+				</p>
+				<p class="desc_box_number">A cada três horas, um sistema automatizado 
+				  seleciona um terço dos 3.474 perfis de maneira aleatória e captura as menções feitas a eles dentro das últimas
+				  três horas, de forma que todas as 24 horas de todos os dias são monitoradas de maneira amostral. A maioria das
+				  menções coletadas são respostas a tweets das candidaturas.
+				</p>
+				<p class="desc_box_number">Para termos certeza de que as menções são direcionadas às candidaturas em questão,
+				selecionamos apenas as respostas diretas aos tweets das candidaturas ou tweets que não mencionem outro perfil
+				além do da candidatura. Também ignoramos tweets sem nenhum texto. Os tweets selecionados são classificados por uma
+				  <a href="https://github.com/cewebbr/violentometro" title="Ir para página - Ferramenta de IA" target="_blank">inteligência artificial</a> que calcula, a partir do texto do tweet,
+				  a probabilidade de cada tweet conter discurso de ódio.
+				</p>
+				<p class="desc_box_number">
+				A inteligência artificial utilizada é uma rede neural do tipo “transformer”, de arquitetura BERT, pré-treinada por
+				<a href="https://github.com/neuralmind-ai/portuguese-bert" title="Ir para página - BERTimbau" target="_blank">Souza et al. (2020)</a>
+				para adivinhar sentenças e palavras ocultadas no meio de 3,53 milhões de documentos obtidos da web brasileira por
+				<a href="https://www.researchgate.net/publication/326303825_The_brWaC_Corpus_A_New_Open_Resource_for_Brazilian_Portuguese" title="Ir para página - Corpus brWaC" target="_blank">Wagner et al. (2018)</a>.
+				Ela foi ajustada para a tarefa específica de identificação de discursos de ódio a partir de 926 exemplos e 4.713
+				contra-exemplos desses discursos disponibilizados pelos trabalhos de
+				<a href="https://github.com/rogersdepelle/OffComBR" title="Ir para página - Github de Pelle" target="_blank">Pelle & Moreira (2017)</a> e
+				<a href="https://github.com/paulafortuna/Portuguese-Hate-Speech-Dataset" title="Ir para página - Github de Fortuna" target="_blank">Fortuna et al. (2019)</a>.
+				</p>
+				<p class="desc_box_number">
+				  Para calcular o número de ataques diários direcionados às candidaturas femininas com perfis identificados
+				  no Twitter, selecionamos apenas as menções a esses perfis. O número de ataques diários é estimado somando
+				  as probabilidades calculadas pela IA e reescalando esse valor, obtido das amostras, para todas as 975
+				  candidaturas femininas com presença identificada no Twitter. 
+				</p>
+				<p class="desc_box_number">
+				  Após o término das eleições, os dados coletados serão analisados em maior detalhe e profundidade,
+				  e os resultados serão apresentados em um relatório. 
+				</p>
+				<p class="desc_box_number"> </p>
+			</div>
+
+		</div>
+	</section>
+	<!--    METODOLOGIA -->
+
+
+</div>
+<!-- CONTEÚDO -->
+
+<!-- 	FOTTER-->
+
+    <!-- FOOTER -->
+
+    <div class="logos-footer">
+        <div class="row">
+
+            <div class="col-lg-1 col-md-1 col-12">
+                <span class="title-footer">Iniciativa</span>
+            </div>
+
+            <!-- logos institucionais -->
+            <div class="col-lg-4 col-md-5 col-12">
+                <div class="row justify-content-md-center">
+
+                    <a href="https://institutovamosjuntas.org/" title="Ir para página - Instituto Vamos Juntas" target="_blank">
+                        <img src="assets/img/vamosjuntas-logo.png" alt="Logo @vamosjuntas">
+                    </a>
+                </div>
+            </div>
+            <!-- logos institucionais -->
+
+            <div class="col-lg-7 col-md-6 col-12">
+                <p class="content-iniciativa">Essa é uma iniciativa 
+		  idealizada pelo <a href="https://institutovamosjuntas.org/" title="Ir para página - Instituto Vamos Juntas" target="_blank">Vamos Juntas</a> e executada por
+		  <a href="http://henriquexavier.net" title="Ir para página - Henrique Xavier" target="_blank">Henrique Xavier</a>.
+		  O Vamos Juntas é um instituto suprapartidário e de alcance 
+nacional que luta pela igualdade de gênero na política, impulsionando 
+candidaturas femininas e mobilizando a sociedade civil para aumentar a 
+presença de mulheres em espaços de poder. Em 2022, o projeto apoia 150 
+lideranças de 25 estados brasileiros. Delas, 48% são não brancas e 
+representam 20 partidos.</p>
+                <p class="content-iniciativa">@vamosjuntasorg</p>
+		<p class="content-iniciativa">As imagens utilizadas nesta página são de livre uso e foram obtidas do
+		<a href="https://nappy.co/" title="Ir para página - Nappy" target="_blank">Nappy</a>
+		e do <a href="https://www.canva.com" title="Ir para página - Canva" target="_blank">Canva</a>.
+            </div>
+    </div>
+</div>
+<!-- FOOTER -->
+
+</body>
+
+</html><!-- FOTTER -->

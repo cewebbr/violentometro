@@ -1,0 +1,164 @@
+
+.grafic_number{
+	.sub_title_site{
+		font-family: "roboto", sans-serif;
+		color: #5f6366;
+		letter-spacing: 0.1rem;
+		font-size: 26px;
+		font-weight: 700;
+		text-transform: uppercase;
+
+	}
+
+	.numbers{
+		margin-top: 3rem;
+		.box_number_milhoes{
+			span{
+				background-color: #545454;
+				border-radius: 8px;
+				font-family: "Barrio", cursive;
+				padding: 30px;
+				color: #FFF;
+				font-size: 50px;
+			}	
+		}
+
+		.box_number_milhares{
+			span{
+				background-color: #545454;
+				border-radius: 8px;
+				font-family: "Barrio", cursive;
+				padding: 30px;
+				color: #FFF;
+				font-size: 50px;
+			}
+			
+		}
+
+		.box_number_centenas{
+			span{
+				background-color: #545454;
+				border-radius: 8px;
+				font-family: "Barrio", cursive;
+				padding: 30px;
+				color: #FFF;
+				font-size: 50px;
+			}
+		}
+	}
+
+}
+
+
+/*------*/
+
+.graficos{
+	.sub_title_site{
+		font-family: "roboto", sans-serif;
+		color: #5f6366;
+		letter-spacing: 0.1rem;
+		font-size: 26px;
+		font-weight: 700;
+		text-transform: uppercase;
+
+	}
+
+	.bg_container_graficos{
+		width: 900px;
+		position: absolute;
+		margin-left: 59rem;
+		margin-top: -10rem;
+	}
+
+}
+
+
+/*------*/
+
+.share{
+	.title_share{
+		font-family: "Barrio", cursive;
+		text-align: center;
+		font-size: 45px;
+		color: #545454;
+		margin-top: 7rem;
+	}
+
+	.icone_share{
+		background-color: #545454;
+		border-radius: 50%;
+		height: 40px;
+		width: 40px;
+		padding: 10px;
+		display: inline-block;
+		text-align: center;
+
+		.fa{
+			color: #FFF;
+		}
+		.fab{
+			color: #FFF;
+		}
+	}
+
+	.container_share{
+		background-color: #f4cc5870;
+		border-radius: 20px;
+		padding: 30px;
+		margin-top: -1rem;
+	}
+
+	.icone_compartilhamento{
+		display: inline-block;
+		position: relative;
+		z-index: 99999;
+	}
+
+	.desc_share{
+		font-family: "Montserrat", sans-serif;
+		font-weight: 300;
+		font-size: 18px;
+		margin-left: 20px;
+
+		a{
+			color: #545454;
+		}
+	}
+}
+
+/*------*/
+
+.container_parceria{
+	.title_parceria{
+		font-family: "Barrio", cursive;
+		text-align: center;
+		color: #545454;
+		font-size: 45px;
+	}
+
+	.desc_box_number{
+		padding: 0 100px;
+	}
+}
+
+/*------*/
+
+.container-logo{
+	padding: 0 100px;
+	margin-bottom: 4rem;
+}
+
+/*------*/
+.desc_box_number{
+	color: #545454;
+	margin-top: 2rem;
+	font-family: "Montserrat", sans-serif;
+	font-weight: 700;
+	font-size: 18px;
+}
+
+.font-300{
+	font-weight: 300;
+}
+
+

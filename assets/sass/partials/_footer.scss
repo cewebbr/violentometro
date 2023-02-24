@@ -1,0 +1,244 @@
+footer {
+	padding: 40px 55px 50px;
+	width: 100%;
+	bottom: 0;
+	position: relative;
+	z-index: 99;
+	border-bottom: 1px solid #0e0e0e54;
+	background: rgba(241, 243, 244, 0.55);
+	margin-top: 10rem;
+	.links-footer {
+		display: block;
+		margin-bottom: 12px;
+		font-size: 14px;
+		line-height: 1.23;
+		letter-spacing: 0.09px;
+		color: rgba(0, 0, 0, 0.6);
+		animation: 0.1s;
+		&:hover {
+			font-weight: 600;
+			animation: 0.1s;
+		}
+	}
+
+
+	.title-footer {
+		margin-bottom: 12px;
+		font-family: "Roboto", sans-serif;
+		display: flex;
+		justify-content: space-between;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 1.23;
+		letter-spacing: 0.09px;
+		color: rgba(0, 0, 0, 0.87);
+		a {
+			margin-bottom: 12px;
+			font-family: "Roboto", sans-serif;
+			display: flex;
+			justify-content: space-between;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 1.23;
+			letter-spacing: 0.09px;
+			color: rgba(0, 0, 0, 0.87);
+		}
+	}
+	a {
+		&:hover {
+			color: #2ca94d;
+			transform: translateY(-1px);
+			text-decoration: none;
+		}
+	}
+	.title-politica {
+		color: #fff;
+		font-weight: 100;
+		border-top: 1px solid #fff;
+		margin-top: 20px;
+		padding-top: 10px;
+	}
+	.desc-politica {
+		font-weight: 400;
+		margin-bottom: 0;
+		margin-top: 0;
+		font-size: 12px;
+	}
+	.collapse {
+		display: block !important;
+		height: 100%;
+		overflow: hidden;
+		transition: none;
+	}
+	.collapsing {
+		display: block !important;
+		height: 100%;
+		overflow: hidden;
+		transition: none;
+	}
+}
+.logos-footer {
+	background-color: #f1f3f4;
+	padding: 50px 55px 30px;
+	width: 100%;
+	bottom: 0;
+	position: relative;
+	z-index: 99;
+	color: #000;
+	img {
+		padding: 0 13px;
+		height: 29px;
+	}
+	.divisor-logo {
+		width: 1px;
+		height: 50px;
+		opacity: 0.12;
+		background-color: rgba(0, 0, 0, 0.87);
+		margin-top: -10px;
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+	.title-footer {
+		font-family: "Roboto", sans-serif;
+		font-size: 13px;
+		font-weight: 500;
+		font-stretch: normal;
+		font-style: normal;
+		line-height: 1.23;
+		letter-spacing: 1.87px;
+		color: rgba(0, 0, 0, 0.87);
+		text-transform: uppercase;
+	}
+	.content-iniciativa {
+		font-family: "Roboto", sans-serif;
+		opacity: 0.7;
+		font-size: 13px;
+		font-weight: normal;
+		font-stretch: normal;
+		font-style: normal;
+		line-height: 1.23;
+		letter-spacing: 0.43px;
+		color: rgba(0, 0, 0, 0.87);
+	}
+	.social-icons {
+		border-top: 1px solid #cfcfcf;
+		border-bottom: 1px solid #cfcfcf;
+		margin-top: 20px;
+		padding-top: 25px;
+		padding-bottom: 5px;
+		text-transform: uppercase;
+		font-weight: 600;
+		font-size: 14px;
+		letter-spacing: 0.1em;
+		font-family: "Roboto", sans-serif;
+		.text-siga {
+			font-family: "Roboto", sans-serif;
+			font-size: 13px;
+			font-weight: 500;
+			font-stretch: normal;
+			font-style: normal;
+			line-height: 1.23;
+			letter-spacing: 1.87px;
+			color: rgba(0, 0, 0, 0.87);
+		}
+		ul {
+			display: inline-block;
+			margin-left: -20px;
+			li {
+				display: inline-block;
+				a {
+					&:hover {
+						text-decoration: none;
+					}
+				}
+			}
+			.fab {
+				margin-right: 6px;
+				cursor: pointer;
+				font-size: 18px;
+				text-decoration: none;
+				transition: all 0.15s ease;
+				-webkit-transition: all 0.15s ease;
+				-moz-transition: all 0.15s ease;
+				color: #000;
+				&:hover {
+					transform: scale(1.1) !important;
+					-webkit-transform: scale(1.1);
+					-moz-transform: scale(1.1);
+				}
+			}
+			.fas {
+				margin-right: 6px;
+				cursor: pointer;
+				font-size: 18px;
+				text-decoration: none;
+				transition: all 0.15s ease;
+				-webkit-transition: all 0.15s ease;
+				-moz-transition: all 0.15s ease;
+				color: #000;
+				&:hover {
+					transform: scale(1.1) !important;
+					-webkit-transform: scale(1.1);
+					-moz-transform: scale(1.1);
+				}
+			}
+		}
+	}
+	.infos-footer {
+		padding-top: 25px;
+		padding-bottom: 5px;
+		ul {
+			li {
+				display: inline;
+				padding: 20px;
+				a {
+					font-family: "Roboto", sans-serif;
+					font-size: 13px;
+					font-weight: normal;
+					font-stretch: normal;
+					font-style: normal;
+					line-height: 2;
+					letter-spacing: 0.09px;
+					color: rgba(0, 0, 0, 0.6);
+					&:hover {
+						color: #fff;
+						transform: translateY(-5px);
+						text-decoration: none;
+					}
+				}
+			}
+		}
+		.nic-cnpj {
+			font-family: "Roboto", sans-serif;
+			font-size: 13px;
+			font-weight: normal;
+			font-stretch: normal;
+			font-style: normal;
+			line-height: 1.33;
+			letter-spacing: 0.1px;
+			color: rgba(0, 0, 0, 0.82);
+		}
+	}
+	.border-footer {
+		width: 1px;
+		height: 45px;
+		display: inline-block;
+		position: relative;
+		margin-top: -8px;
+		opacity: 0.12;
+		background-color: rgba(0, 0, 0, 0.87);
+		border-right: 1px solid #000;
+	}
+	.text-contato {
+		font-family: "Roboto", sans-serif;
+		font-size: 14px;
+		font-weight: normal;
+		font-stretch: normal;
+		font-style: normal;
+		line-height: 1.71;
+		letter-spacing: 0.1px;
+		text-align: right;
+		color: rgba(0, 0, 0, 0.7);
+		text-transform: none;
+	}
+}
