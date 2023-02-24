@@ -1,42 +1,58 @@
-# Violentômetro - Um estudo da aplicabilidade de IA na detecção de violência
+# Violentometer - a study on the applicability of AI to the measurement of agression levels on the Web
 
-Este é um projeto de pesquisa ainda em andamento sobre as possibilidades e desafios do uso de
-Inteligência Artificial (IA) para a detecção de textos violentos na _web_, derivado do projeto anterior
+This a broad-scope research project that revolves around the investigation of possibilities and challenges
+faced by the application of Artificial Intelligence on the monitoring of online electoral violence directed
+to candidates in the Brazilian 2022 elections, carried over with data collected from Twitter.
+
+### Project outline
+
+This research project is composed of the folowing smaller sub-projects:
+
+1. An analysis of the Brazilian Superior Electoral Court (TSE) data on the use of web platforms by
+   electoral candidates, and of the relationships between this data and the candidates' profiles.
+2. The training of Machine Learning (ML) and Artificial Intelligence (AI) models for the identification
+   of violence (i.e. hate speech and offensive comments) on texts.
+3. The construction of a 24/7 system for capturing mentions on Twitter to a specified list of users and for
+   estimating in real time the amount of aggressions directed to them.
+4. The annotation by specialists of a sample of captured tweets in terms of violence and other relevant information.
+5. An investigation of the model's performance and biases with respect to different social groups, violence
+   types, targets of the tweets and different sets of annotators.
+6. The development of a tool for estimating and displaying on the Web the evolution of violence levels directed
+   to female candidates during the Brazilian 2022 election campaign period. 
+
+The AI developed in this project was based on the one from
 [cewebbr/Bert_HateSpeech_Classification](https://github.com/cewebbr/Bert_HateSpeech_Classification).
-Para viabilizar o estudo e teste dos métodos investigados, também produzimos uma ferramenta de coleta
-de postagens na rede social Twitter.
-
-**ATENÇÃO:** Os códigos e modelos aqui disponibilizados compõem etapas preliminares de um projeto
-de pesquisa e ainda não foram validados e verificados por especialistas. Eles não se propõem a definir o
-significado de violência ou discurso de ódio e nem a servir como ferramenta validadora de diferentes
-tipos de discurso. Esperamos que a comunidade técnica e científica possa aproveitar o material aqui disponível
-para aprofundar os estudos e discussões sobre Processamento de Linguagem Natural (NLP) e sua relação com a _web_.
 
 
-## Conteúdo e estrutura do projeto
+## Content and structure of the project
 
-Este projeto contém:
+In this project you will find:
 
-* um modelo experimental de IA de identificação de discursos violentos, treinado a partir de todas as instâncias anotadas
-disponíveis na literatura acadêmica;
-* um modelo de aprendizagem de máquina treinado para identificar o objeto do qual um certo texto trata;
-* notebooks apresentando o processo de construção, treinamento e teste dos modelos acima;
-* um código de captura automatizada de postagens no Twitter que mencionem perfis especificados pelo usuário; e
-* uma lista de perfis do Twitter, utilizados para teste da ferramenta. 
 
-### Estrutura
+* an experimental AI model for identification of violent texts;
+* a ML model for identifying the target of a comment on Twitter (if the correspondent or a third party);
+* about 1,100 newly annotated tweets in terms of violence and other characteristics;
+* notebooks that go through the process of training and testing the models above;
+* notebooks that download public data about the Brazilian election and analyses them;
+* a code for an automatic tweet capturing system;
+* tutorials that go through specific parts of this project.
+
+### Estructure
     .
-    ├── analises           <- Notebooks com o treinamento dos modelos
-    ├── dados              <- Dados utilizados no projeto
-    ├── docs               <- Outros documentos relacionados ao projeto
-    ├── modelos            <- Arquivos dos modelos treinados
-    ├── src                <- Módulos em Python que capturam os dados e aplicam os modelos
-    ├── scripts            <- Shell scripts acessórios
-    ├── tweets             <- Configuração da captura, logs e destino dos tweets coletados
-    ├── webpage            <- Dados da página web de divulgação em tempo real dos dados
-    ├── LICENSE            <- Licença de uso e cópia
-    ├── README.md          <- Este documento
-    └── requirements.txt   <- Pacotes de python necessários
+    ├── analises            <- Jupyter notebooks containing data analysis
+    |   ├── modelos         <- Jupyter notebooks for training the AI and ML models
+    |   └── 00_indice.ipynb <- Index of all analysis and model building notebooks
+    ├── dados               <- Data used in the project
+    ├── docs                <- Documents (PDFs)
+    ├── modelos             <- Actual AI and ML models saved to joblib or h5 files
+    ├── src                 <- Python scripts and modules build for and used by the project
+    ├── scripts             <- Shell scripts for deploying monitoring systems
+    ├── tutoriais           <- Tutorials for reproducing specific parts of the project
+    ├── tweets              <- Tweet capture config and storage place for the tweets
+    ├── webpage             <- Data produced by the system to be used by a webpage 
+    ├── LICENSE             <- License for this project
+    ├── README.md           <- This document
+    └── requirements.txt    <- Required python packages
 
 
 ## Perfis de teste
