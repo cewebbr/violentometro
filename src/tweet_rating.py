@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
 import os
 import json
 import pandas as pd
@@ -303,13 +304,13 @@ def log_print(string, start=False):
     print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string), flush=True)
 
 
-def driver():
+def driver(config_file='../tweets/tweet_capture_config.json'):
     """
     Infinite loop that use a config file to define when and how to rate 
     tweets for hate speech.
     """
     # Init config:
-    config = read_config()
+    config = read_config(config_file)
     batch_time = config['batch_ref_time']
     
     # Desativa mensagens do hugging face:
@@ -324,7 +325,7 @@ def driver():
         time.sleep(sleep_time)
         
         # Load data and config:
-        config = read_config()
+        config = read_config(config_file)
         log_print('Batch config! data_dir: {}, scored_dir: {}, model_dir: {}, force_rate: {}'.format(config['data_dir'], config['scored_dir'], config['model_dir'], config['force_rate']))
         # Load model:
         model = sw.HateSpeechModel(config['model_dir'])
@@ -347,4 +348,21 @@ def driver():
 # If running this code as a script:
 if __name__ == '__main__':
 
-    driver()
+    n_args = len(sys.argv)
+    script_name = sys.argv[0]
+    
+    if n_args > 1:
+        
+        # Guard against multiple inputs:
+        if n_args > 2:
+            print('ERROR: {} is expecting one argument at most.'.format(script_name))
+            sys.exit()
+
+        # Get config file:
+        config_file = sys.argv[1]
+        print('Will use config from {}...'.format(config_file))
+        driver(config_file)
+
+    else:
+        print('Running script with no arguments (using hard-coded config file).')
+        driver()
