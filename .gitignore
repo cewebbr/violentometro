@@ -29,6 +29,15 @@ dados/brutos/tse
 dados/limpos/tse
 tweets/encrypted
 tweets/encrypted-scored-tweets.zip
+tutoriais/live-monitor/tweets/data/*
+!tutoriais/live-monitor/tweets/data/.gitignore
+tutoriais/live-monitor/tweets/scored/*
+!tutoriais/live-monitor/tweets/scored/.gitignore
+tutoriais/live-monitor/tweets/logs/capture/*
+!tutoriais/live-monitor/tweets/logs/capture/.gitignore
+tutoriais/live-monitor/tweets/logs/capture_errors/*
+!tutoriais/live-monitor/tweets/logs/capture_errors/.gitignore
+
 
 # Restritos pela LGPD
 tweets/data
