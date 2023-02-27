@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
 import pandas as pd
 import numpy as np
 import datetime as dt
@@ -791,7 +792,7 @@ def log_print(string, start=False):
     print('{} {}: {}'.format('*' if start else ' ', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), string), flush=True)
 
 
-def update_current_level(new_tweets, config, ini_date):
+def update_current_level(new_tweets, config, ini_date, config_file='../tweets/tweet_capture_config.json'):
     """
     Update the config file for the total number of tweets captured 
     since the last monthly quota reset. 
@@ -809,10 +810,10 @@ def update_current_level(new_tweets, config, ini_date):
         # Add last tweets to count:
         config['curr_level'] += new_tweets
     
-    write_config(config)
+    write_config(config, config_file)
 
 
-def update_cap_renew_date(config, ini_date):
+def update_cap_renew_date(config, ini_date, config_file='../tweets/tweet_capture_config.json'):
 
     # Parse cap renew date:
     utc_renew_time = parse_utc_time(config['cap_renew_date'] + 'T00:00:00', bsb2utc=False)
@@ -829,12 +830,12 @@ def update_cap_renew_date(config, ini_date):
     
     # Save new cap renew date:
     config['cap_renew_date'] = new_renew_time.strftime('%Y-%m-%d')
-    write_config(config)
+    write_config(config, config_file)
 
 
-def driver():
+def driver(config_file='../tweets/tweet_capture_config.json'):
     
-    config = read_config()
+    config = read_config(config_file)
     batch_time = config['batch_ref_time']
     batch_df = None
     while True:
@@ -847,7 +848,7 @@ def driver():
         
         # Load data and config:
         log_print('Reload config and ID pool!', True)
-        config = read_config()
+        config = read_config(config_file)
         twitter_df = pd.read_csv(config['twitter_ids_file'])
         n_cands = batch_n_cands(config['curr_level'], config['cap_renew_date'], config['avg_tweets_per_cand'], 
                                 config['capture_period'], config['max_batch_cands'], config['tweet_cap'], config['tweets_buffer'])
@@ -862,12 +863,29 @@ def driver():
         log_print('Finished batch! Tweets captured: {:d}, Avg tweets: {:.3f}'.format(tot_tweets, avg_tweets))
         
         # Update config:
-        update_current_level(tot_tweets, config, batch_time)
-        update_cap_renew_date(config, batch_time)
+        update_current_level(tot_tweets, config, batch_time, config_file)
+        update_cap_renew_date(config, batch_time, config_file)
         log_print('Updated config! current level: {:d}, cap renew date: {}'.format(config['curr_level'], config['cap_renew_date']))
 
 
 # If running this code as a script:
 if __name__ == '__main__':
 
-    driver()
+    n_args = len(sys.argv)
+    script_name = sys.argv[0]
+    
+    if n_args > 1:
+        
+        # Guard against multiple inputs:
+        if n_args > 2:
+            print('ERROR: {} is expecting one argument at most.'.format(script_name))
+            sys.exit()
+
+        # Get config file:
+        config_file = sys.argv[1]
+        print('Will use config from {}...'.format(config_file))
+        driver(config_file)
+
+    else:
+        print('Running script with no arguments (using hard-coded config file).')
+        driver()
