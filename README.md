@@ -42,6 +42,7 @@ In this project you will find:
     ├── analises            <- Jupyter notebooks containing data analysis
     |   ├── modelos         <- Jupyter notebooks for training the AI and ML models
     |   └── 00_indice.ipynb <- Index of all analysis and model building notebooks
+    ├── assets              <- Files used by the violence monitor gitpage 
     ├── dados               <- Data used in the project
     ├── docs                <- Documents (PDFs)
     ├── modelos             <- Actual AI and ML models saved to joblib or h5 files
@@ -49,7 +50,7 @@ In this project you will find:
     ├── scripts             <- Shell scripts for deploying monitoring systems
     ├── tutoriais           <- Tutorials for reproducing specific parts of the project
     ├── tweets              <- Tweet capture config and storage place for the tweets
-    ├── webpage             <- Data produced by the system to be used by a webpage 
+    ├── index.html          <- Gitpage (webpage) for displaying a violence level monitor. 
     ├── LICENSE             <- License for this project
     ├── README.md           <- This document
     └── requirements.txt    <- Required python packages
