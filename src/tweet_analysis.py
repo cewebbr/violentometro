@@ -764,19 +764,139 @@ def plot_hate_daily_series(hate_series, tweet_series):
     return f
 
 
-def data_to_csv(hate_series, tweet_series, outfile):
+def agg_counts_in_analysis_period(counts_series, analysis_period):
     """
-    Save to a CSV file a table with three daily time series:
+    Returns a new time series with values aggregated over the 
+    analysis period.
+    
+    Parameters
+    ----------
+    counts_series : Series
+        A Pandas Series with datetime index and values that can be 
+        summed over.
+    analysis_period : float
+        Size (in hours) of each aggregating bin.
+        
+    Returns
+    -------
+    agg_series : Series
+        Series of values aggregated (summed) in periods of 
+        `analysis_period` hours. The index are spaced by 
+        the same period and the index labels are the end of
+        the period.
+    """
+    
+    agg_series = counts_series.resample('{}H'.format(analysis_period), closed='right', label='right').sum()
+    
+    return agg_series
+
+
+def plot_hate_time_series(hate_series, tweet_series, time_range=None):
+    """
+    Returns a plot with 3 subplots, all time series:
     - The fraction of tweets that are violent;
     - The number of tweets that are violent;
     - The total number of tweets.
+    """
+    
+    # Hard coded:
+    ticksize     = 13
+    labelsize    = 14 
+    legendsize   = 14
+    pad_factor   = 1.1
+    middle_pad   = 0.1
+    frame_color  = '0.1'
+    grid_color   = '0.85'
+    legend_loc   = 'upper right'
+    grid_axis    = 'x'
+        
+    # Cria figura:
+    f = pl.figure(figsize=(10,10))
+
+    # Plot do total de tweets:
+    a0 = pl.subplot(3,1,1)
+    (tweet_series).plot(marker='o', color='#e5c493', label='All tweets')
+    # Format:
+    pl.ylim([0, tweet_series.max() * pad_factor])
+    pl.ylabel('Total tweets', fontsize=labelsize, color=frame_color)
+
+    # Plot do total de tweets com agressões:
+    a1 = pl.subplot(3,1,2)
+    (hate_series).plot(marker='o', color='#5e6264', label='Violent tweets')
+    # Format:
+    pl.ylim([0, hate_series.max() * (pad_factor + middle_pad)])
+    pl.ylabel('# violent tweets', fontsize=labelsize, color=frame_color, labelpad=21)
+
+    # Plot da fração de tweets com agressões:
+    a2 = pl.subplot(3,1,3)
+    percent_series = (hate_series / tweet_series * 100)
+    percent_series.plot(marker='o', color='#fdcb09', label='Violent fraction')
+    # Format:
+    pl.ylim([percent_series.min() / pad_factor, percent_series.max() * pad_factor])
+    pl.ylabel('Violent tweets (%)', fontsize=labelsize, color=frame_color, labelpad=20)
+    
+    # General format:
+    axes = (a0, a1, a2)
+    for ax in axes:
+        
+        # Spines: 
+        ax.spines['top'].set_visible(False)
+        
+        # Frames, ticks:
+        ax.tick_params(axis='y', color=grid_color, labelcolor=frame_color, labelsize=ticksize, length=5)
+        #for spine in ax.spines.values():
+        #    spine.set_edgecolor(frame_color)
+        for side in ['right', 'left']:
+            ax.spines[side].set_visible(False)
+
+        pl.sca(ax)
+        pl.xlabel('')
+        # Range:
+        pl.xlim(time_range)
+        # Grid:
+        pl.grid(axis=grid_axis, color=grid_color, which='both')
+        # Legend:
+        place_legend(legend_loc, legendsize, frame_color)
+    
+    for ax in (a0, a1):
+        ax.tick_params(axis='x', labelbottom=False)
+        
+    pl.subplots_adjust(hspace=0.02)
+    
+    return f
+
+
+def data_to_csv(hate_series, tweet_series, outfile, daily=True):
+    """
+    Save to a CSV file a table with three time series:
+    - The fraction of tweets that are violent;
+    - The number of tweets that are violent;
+    - The total number of tweets.
+    
+    Parameters
+    ----------
+    hate_series : Series
+        Pandas Series whose index are datetimes and values and the estimated
+        number of violent tweets.
+    hate_series : Series
+        Pandas Series whose index are datetimes and values and the estimated
+        total number of tweets.
+    outfile : str or Path
+        Path where to save the CSV file.
+    daily : bool
+        Whether the data is daily (use dates for row indices) or not 
+        (use datetimes).
     """
 
     # Put data into a DataFrame
     df = pd.DataFrame({'Total de tweets': tweet_series.round().astype(int), 'Número de tweets violentos': hate_series.round().astype(int)})
     df['Porcentagem de tweets violentos'] = (df['Número de tweets violentos'] / df['Total de tweets'] * 100).round(2)
     # Format the date index:    
-    df.index = pd.to_datetime(df.index).strftime('%d/%m/%Y')
+    if daily is True:
+        fmt = '%Y-%m-%d'
+    else:
+        fmt = '%Y-%m-%d %H:%M:%S'
+        df.index = pd.to_datetime(df.index).strftime(fmt)
     df.index.name = 'Data'
 
     # Export to CSV:
@@ -813,11 +933,15 @@ def save_webpage_data(hate_series, fig_name, filename='../webpage/data/webpage_d
     """
     
     # Pega a data de ontem:
-    yesterday = (pd.to_datetime('today') - pd.DateOffset(days=1)).date()
+    yesterday = (pd.to_datetime('today') - pd.DateOffset(days=1)).date().strftime('%Y-%m-%d')
+    yesterday_counts = hate_series[yesterday] if yesterday in hate_series else 0 # Return zero if there is no data.
+    # If index are datetimes, yesterday_counts will be a Series still:
+    if type(yesterday_counts) not in (int, float):
+        yesterday_counts = yesterday_counts.sum()
     
     # Cria JSON com números e nome da figura:
     webpage_data = {'total_counts': int(hate_series.sum() + 0.5),
-                    'yesterday_counts': int(hate_series[yesterday] + 0.5),
+                    'yesterday_counts': int(yesterday_counts + 0.5),
                     'time_series_plot': fig_name,
                     'last_update': pd.to_datetime('today').strftime('%Y-%m-%dT%H:%M:%S')}
     
@@ -895,7 +1019,8 @@ def analyse_tweets(config):
     
     # Registro de pools de IDs utilizados:
     log_print('Loading list of twitter ID lists...', start=True)
-    source_df = load_id_pool_sources(config['id_pool_sources'])   
+    source_df = load_id_pool_sources(config['id_pool_sources'])
+    last_source_file = source_df['file'].iloc[-1]
     # Carrega todos os arquivos de pool de perfis de candidatos:
     log_print('Loading twitter ID lists...')
     id_dfs = load_ID_pools(config['id_pool_dir'], source_df)
@@ -923,7 +1048,7 @@ def analyse_tweets(config):
     
     # Seleciona tweets direcionados às candidaturas especificadas:
     log_print('Selecting candidates subgroup and removing bad users...')
-    selection_df = sel_ids(direct_df, id_ids['twitter_ids_deputados_2022_v04.csv'])
+    selection_df = sel_ids(direct_df, id_ids[last_source_file])
     
     # Compute deseasonalyzing factor (to impute missing scheduled batches):
     log_print('Computing deseasonalizing factors...')
@@ -933,32 +1058,46 @@ def analyse_tweets(config):
     # Aggregate tweets over candidates to produce tweets counts and hate counts time series:
     log_print('Aggregating tweets to form batch time series...')
     capture_df = aggregate_tweet_counts_over_candidates(selection_df, batch_df, ref_ids, list_factors, season_index, config['official_start'], config['capture_period'])
-
-    # Aggregate counts over time to create a series per day:
-    log_print('Aggregating time series over the days...')
-    yesterday    = (pd.to_datetime('today') - pd.DateOffset(days=1)).date()
-    hate_series  = sum_per_day(capture_df.reset_index(), 'final_n_hate', 'index', capture_period).loc[:yesterday]
-    tweet_series = sum_per_day(capture_df.reset_index(), 'final_n_tweets', 'index', capture_period).loc[:yesterday]
-
+    
+    # Check whether the analysis is done in a daily period or not:
+    daily = (config['analyse_period'] % 24 == 0)
+    
+    # Aggregate counts over time to create a smooth time series:
+    if daily is True:
+        log_print('Aggregating time series over the days...')
+        yesterday    = (pd.to_datetime('today') - pd.DateOffset(days=1)).date()
+        hate_series  = sum_per_day(capture_df.reset_index(), 'final_n_hate', 'index', capture_period).loc[:yesterday]
+        tweet_series = sum_per_day(capture_df.reset_index(), 'final_n_tweets', 'index', capture_period).loc[:yesterday]
+    else:
+        log_print('Aggregating time series over the analysis period...')
+        hate_series  = agg_counts_in_analysis_period(capture_df['final_n_hate'],   config['analyse_period'])
+        tweet_series = agg_counts_in_analysis_period(capture_df['final_n_tweets'], config['analyse_period'])
+        
     # Cria e salva gráfico:
     log_print('Creating time series plot...')
-    fig_name = config['time_series_plot'].format(pd.to_datetime('today').strftime('%Y-%m-%d'))
-    fig = plot_hate_daily_series(hate_series, tweet_series)
+    if daily is True:
+        fig_name = config['time_series_plot'].format(pd.to_datetime('today').strftime('%Y-%m-%d'))
+        fig = plot_hate_daily_series(hate_series, tweet_series)
+    else:
+        fig_name = config['time_series_plot'].format(pd.to_datetime('today').strftime('%Y-%m-%dT%H:%M'))
+        start_time = config['official_start']
+        end_time   = config['official_end'] if 'official_end' in config else capture_df.index[-1]  
+        fig = plot_hate_time_series(hate_series, tweet_series, time_range=[start_time, end_time])
     log_print('Saving time series plot...')
     fig.savefig(fig_name, transparent=True)
     
     # Salva informação do gráfico em tabela:
-    data_to_csv(hate_series, tweet_series, config['time_series_csv'])
+    data_to_csv(hate_series, tweet_series, config['time_series_csv'], daily=daily)
     
     # Write info to JSON:
     log_print('Saving resulting data to JSON...')
     save_webpage_data(hate_series, fig_name, config['webpage_json_file'])
     
 
-def driver():
+def driver(config_file='../tweets/tweets2metric_config.json'):
 
     # Read config:
-    config = read_config('../tweets/tweets2metric_config.json')
+    config = read_config(config_file)
     batch_time = config['analyse_ref_time']
 
     while True:
@@ -969,26 +1108,38 @@ def driver():
         time.sleep(sleep_time)
 
         # Read config:
-        config = read_config('../tweets/tweets2metric_config.json')
+        config = read_config(config_file)
         # Process data to produce summary stats and plots:
         analyse_tweets(config)
     
         # Upload to github:
-        subprocess.run(['../scripts/git_push_analysis.sh'])
+        #subprocess.run(['../scripts/git_push_analysis.sh'])
 
         
 # If running this code as a script:
 if __name__ == '__main__':
     
+    # Choose a config file (input or hard-coded):
+    n_args = len(sys.argv)
+    if n_args > 1 and sys.argv[1] != 'now':
+        config_file = sys.argv[1]
+    else:
+        config_file = '../tweets/tweets2metric_config.json'
+    
+    # Check if the analysis is to be ran now:
+    if n_args > 1 and sys.argv[-1] == 'now':
+        run_now = True
+    else:
+        run_now = False
     
     # Run analysis now, if requested:
-    if len(sys.argv) > 1 and sys.argv[1] == 'now':
-        
+    if run_now is True:
+
         # Read config:
-        config = read_config('../tweets/tweets2metric_config.json')
+        config = read_config(config_file)
         # Process data to produce summary stats and plots:
         analyse_tweets(config)        
     
     # Infinite loop with scheduled run:
     else:    
-        driver()
+        driver(config_file)
