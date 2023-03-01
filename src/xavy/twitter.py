@@ -894,7 +894,7 @@ def exceeded_request_limit(response, abort=True):
     return False
 
 
-def request_twitter_api(resource_url, parameters=None, header=None, method='GET', return_header=False, credentials='/home/hxavier/config/keys/twitter_api_key.json'):
+def request_twitter_api(resource_url, parameters=None, header=None, method='GET', return_header=False, credentials='../keys/twitter_violentometro.json'):
     """
     Make a request to a Twitter API endpoint and return the response
     as a parsed JSON (i.e. a list of dicts or dict of lists).
