@@ -58,7 +58,7 @@ For this project, you only need to put your Bearer token (also known as app-only
 
 To allow the script to automatically push the new metrics to a [gitpage](), it is necessary to set up a passwordless push with ssh keys.
 Follow this instructions to set github in such a way:
-<https://stackoverflow.com/questions/8588768/how-do-i-avoid-the-specification-of-the-username-and-password-at-every-git-push>
+<https://stackoverflow.com/questions/8588768/how-do-i-avoid-the-specification-of-the-username-and-password-at-every-git-push>.
 
 
 ## Running the monitor
@@ -73,40 +73,40 @@ We describe the entries in these files below.
 
 #### tweet_capture_config.json
 
-`curr_level`: current number of tweets captured within the monthly cap period;
-`cap_renew_date`: date (in format YYYY-MM-DD) when the monthly cap is renewed;
-`avg_tweets_per_cand`: average number of tweets to be captured per capturing period; 
-`tweets_buffer`: number of tweets NOT to capture in order to avoid exceeding the monthly quota (e.g. 100);
-`capture_period`: interval between captures (also the time interval that a capture should cover), in hours;
-`tweet_cap`: monthly cap on the number of tweets allowed by the Twitter API (e.g. 2000000 for extended usage);
-`max_batch_cands`: maximum number of profiles to collect mentions to in one capture (I suggest 1/3 of the total number of profiles);
-`log_dir`: `tweets/logs/capture/`, where capture logs are saved;
-`error_dir`: `tweets/logs/capture_errors/`, where error messages during capture are saved;
-`data_dir`: `tweets/data/`, where the captured tweets are saved;
-`batch_ref_time`: a datetime in the past from which to calculate the next capture instants (format YYYY-MM-DD HH:MM:SS);
-`twitter_ids_file`: `config/target_twitter_profiles.csv`, List of Twitter profiles to check for mentions to;
-`scored_dir`: `tweets/scored/`, where to save the tweets rated with respect to their violence levels;
-`model_dir`: `../../modelos/bertimbau-hatespeech-v01`, folder of the AI model to be used for identifying violence;
-`force_rate`: whether the rating script should only rate yet unrated tweets (`false` unless you want to redo all ratings).
+* `curr_level`: current number of tweets captured within the monthly cap period;
+* `cap_renew_date`: date (in format YYYY-MM-DD) when the monthly cap is renewed;
+* `avg_tweets_per_cand`: average number of tweets to be captured per capturing period; 
+* `tweets_buffer`: number of tweets NOT to capture in order to avoid exceeding the monthly quota (e.g. 100);
+* `capture_period`: interval between captures (also the time interval that a capture should cover), in hours;
+* `tweet_cap`: monthly cap on the number of tweets allowed by the Twitter API (e.g. 2000000 for extended usage);
+* `max_batch_cands`: maximum number of profiles to collect mentions to in one capture (I suggest 1/3 of the total number of profiles);
+* `log_dir`: `tweets/logs/capture/`, where capture logs are saved;
+* `error_dir`: `tweets/logs/capture_errors/`, where error messages during capture are saved;
+* `data_dir`: `tweets/data/`, where the captured tweets are saved;
+* `batch_ref_time`: a datetime in the past from which to calculate the next capture instants (format YYYY-MM-DD HH:MM:SS);
+* `twitter_ids_file`: `config/target_twitter_profiles.csv`, List of Twitter profiles to check for mentions to;
+* `scored_dir`: `tweets/scored/`, where to save the tweets rated with respect to their violence levels;
+* `model_dir`: `../../modelos/bertimbau-hatespeech-v01`, folder of the AI model to be used for identifying violence;
+* `force_rate`: whether the rating script should only rate yet unrated tweets (`false` unless you want to redo all ratings).
 
 #### tweets2metric_config.json
 
-`analyse_ref_time`: a datetime in the past from which to calculate the next analysis instants;
-`analyse_period`: time interval between the analysis (and aggregation time interval), in hours;
-`id_pool_sources`: `config/twitter_id_pool_sources.log`, the list of lists of twitter profile IDs to be monitored, in case these changed during the monitoring the process;
-`id_pool_dir`: `config/`, the folder where the lists of profile IDs are saved;
-`batch_logs_dir`: `tweets/logs/capture/`, where the logs of the captures are saved;
-`scored_tweets_dir`: `tweets/scored/`, where the scored tweets are saved;
-`target_model`: `../../modelos/nb_wrong_target_classifier_v02/production_model.joblib`, a model that identifies if the comment in the tweet refers to the mentioned profile or not;
-`bad_users`: list of user IDs in the list of profiles to ignore;
-`pool_factor_file`: `config/id_pool_weights.csv`, table informing how to convert the estimated tweet and violent tweet counts from one list of profile IDs to another;
-`cand_sel_query`: Pandas query to select a subset of profile IDs to capture mentions to;
-`capture_period`: interval between captures (also the time interval that a capture should cover), in hours;
-`official_start`: when the analysis officialy started (plot start, format YYYY-MM-DD HH:MM:SS);
-`official_end`: when the analysis officialy started (plot start, format YYYY-MM-DD HH:MM:SS);
-`time_series_plot`: `../../assets/img/graficos/tweets_agressivos_por_dia_feminino.png`, where to save the time series plot;
-`time_series_csv`:  `../../assets/data/tweets_agressivos_por_dia_feminino.csv`, where to save the metrics data;
-`webpage_json_file`: `../../assets/js/data.js`, where to save the "big numbers" data.
+* `analyse_ref_time`: a datetime in the past from which to calculate the next analysis instants;
+* `analyse_period`: time interval between the analysis (and aggregation time interval), in hours;
+* `id_pool_sources`: `config/twitter_id_pool_sources.log`, the list of lists of twitter profile IDs to be monitored, in case these changed during the monitoring the process;
+* `id_pool_dir`: `config/`, the folder where the lists of profile IDs are saved;
+* `batch_logs_dir`: `tweets/logs/capture/`, where the logs of the captures are saved;
+* `scored_tweets_dir`: `tweets/scored/`, where the scored tweets are saved;
+* `target_model`: `../../modelos/nb_wrong_target_classifier_v02/production_model.joblib`, a model that identifies if the comment in the tweet refers to the mentioned profile or not;
+* `bad_users`: list of user IDs in the list of profiles to ignore;
+* `pool_factor_file`: `config/id_pool_weights.csv`, table informing how to convert the estimated tweet and violent tweet counts from one list of profile IDs to another;
+* `cand_sel_query`: Pandas query to select a subset of profile IDs to capture mentions to;
+* `capture_period`: interval between captures (also the time interval that a capture should cover), in hours;
+* `official_start`: when the analysis officialy started (plot start, format YYYY-MM-DD HH:MM:SS);
+* `official_end`: when the analysis officialy started (plot start, format YYYY-MM-DD HH:MM:SS);
+* `time_series_plot`: `../../assets/img/graficos/tweets_agressivos_por_dia_feminino.png`, where to save the time series plot;
+* `time_series_csv`:  `../../assets/data/tweets_agressivos_por_dia_feminino.csv`, where to save the metrics data;
+* `webpage_json_file`: `../../assets/js/data.js`, where to save the "big numbers" data.
 
 
 ### Running
