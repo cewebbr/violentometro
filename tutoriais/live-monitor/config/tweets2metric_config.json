@@ -12,7 +12,7 @@
     "capture_period": 0.5,
     "official_start": "2023-02-27 12:30:00",
     "official_end": "2023-03-06 00:00:00",
-    "time_series_plot": "tweets_agressivos_por_dia_feminino.png",
-    "time_series_csv":  "tweets_agressivos_por_dia_feminino.csv",
-    "webpage_json_file": "data.js"
+    "time_series_plot": "../../assets/img/graficos/tweets_agressivos_por_dia_feminino.png",
+    "time_series_csv":  "../../assets/data/tweets_agressivos_por_dia_feminino.csv",
+    "webpage_json_file": "../../assets/js/data.js"
 }
