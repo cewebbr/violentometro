@@ -23,6 +23,7 @@ imagens
 
 # Segredos
 src/data_encryption_key.txt
+keys
 
 # Dados grandes que não entram no repo
 dados/brutos/tse
@@ -37,6 +38,9 @@ tutoriais/live-monitor/tweets/logs/capture/*
 !tutoriais/live-monitor/tweets/logs/capture/.gitignore
 tutoriais/live-monitor/tweets/logs/capture_errors/*
 !tutoriais/live-monitor/tweets/logs/capture_errors/.gitignore
+
+# Dados gerados pelos sistemas
+tutoriais/live-monitor/tweets/logs/*.log
 
 
 # Restritos pela LGPD

@@ -11,7 +11,7 @@
     "cand_sel_query": "DS_GENERO == 'FEMININO'",
     "capture_period": 0.5,
     "official_start": "2023-02-27 12:30:00",
-    "official_end": "2023-03-01 00:00:00",
+    "official_end": "2023-03-06 00:00:00",
     "time_series_plot": "tweets_agressivos_por_dia_feminino.png",
     "time_series_csv":  "tweets_agressivos_por_dia_feminino.csv",
     "webpage_json_file": "data.js"
