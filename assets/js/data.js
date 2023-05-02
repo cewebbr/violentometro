@@ -1,1 +1,1 @@
-data = '{"total_counts": 6264, "yesterday_counts": 1753, "time_series_plot": "../../assets/img/graficos/tweets_agressivos_por_dia_feminino.png", "last_update": "2023-05-02T12:00:06"}'
+data = '{"total_counts": 6387, "yesterday_counts": 1752, "time_series_plot": "../../assets/img/graficos/tweets_agressivos_por_dia_feminino.png", "last_update": "2023-05-02T13:00:07"}'
