@@ -1,6 +1,6 @@
 {
- "curr_level": 8314,
- "cap_renew_date": "2023-03-03",
+ "curr_level": 37858,
+ "cap_renew_date": "2023-05-03",
  "avg_tweets_per_cand": 0.723,
  "tweets_buffer": 100,
  "capture_period": 0.5,
@@ -9,7 +9,7 @@
  "log_dir": "tweets/logs/capture/",
  "error_dir": "tweets/logs/capture_errors/",
  "data_dir": "tweets/data/",
- "batch_ref_time": "2023-02-27T10:00:00",
+ "batch_ref_time": "2023-04-28T00:00:00",
  "twitter_ids_file": "config/target_twitter_profiles.csv",
  "scored_dir": "tweets/scored/",
  "model_dir": "../../modelos/bertimbau-hatespeech-v01",
