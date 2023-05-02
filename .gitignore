@@ -23,7 +23,9 @@ imagens
 
 # Segredos
 src/data_encryption_key.txt
-keys
+keys/*
+!keys/.gitignore
+
 
 # Dados grandes que não entram no repo
 dados/brutos/tse
